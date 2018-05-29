@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Icon/error.png</file>
+        <file>Icon/folder.png</file>
+        <file>Icon/success.png</file>
+        <file>Icon/add.png</file>
+        <file>Icon/server.png</file>
+        <file>Icon/garbage.png</file>
+        <file>Icon/more.png</file>
+    </qresource>
+</RCC>
