@@ -2,37 +2,64 @@
 
 Settings::Settings(QObject *parent) : QObject(parent)
 {
-    m_qsSettings = new QSettings("Activity_Report.ini", QSettings::IniFormat,this);
-
-    for (int i=0;i<7;i++)
-        m_qlDayDiplay.append(true);
-
-    load();
+    m_qsSettings = new QSettings("Update.ini", QSettings::IniFormat,this);
 }
 
 Settings::~Settings()
 {
-    save();
+
 }
 
-void Settings::save()
+void Settings::save(QRect *windowsRect,QList<COPYSTRUCT*>* list,QString filesDir)
 {
-    m_qsSettings->setValue("General/WindowRectX",QString::number(m_WindowRect.x()));
-    m_qsSettings->setValue("General/WindowRectY",QString::number(m_WindowRect.y()));
-    m_qsSettings->setValue("General/WindowRectHeight",QString::number(m_WindowRect.height()));
-    m_qsSettings->setValue("General/WindowRectWidth",QString::number(m_WindowRect.width()));
+    m_qsSettings->clear();
 
-    for (int i=0;i<7;i++)
-        m_qsSettings->setValue("Days/DisplayDay"+QString::number(i),QString::number(m_qlDayDiplay.at(i)));
+    m_qsSettings->setValue("General/WindowRectX",windowsRect->x());
+    m_qsSettings->setValue("General/WindowRectY",windowsRect->y());
+    m_qsSettings->setValue("General/WindowRectHeight",windowsRect->height());
+    m_qsSettings->setValue("General/WindowRectWidth",windowsRect->width());
+
+    if (!list->size())
+        return;
+    m_qsSettings->setValue("Destination/nbDest",list->size());
+    for (int iList=0;iList<list->size();iList++)
+    {
+        m_qsSettings->setValue("Destination"+QString::number(iList)+"/ID",list->at(iList)->Id);
+        m_qsSettings->setValue("Destination"+QString::number(iList)+"/DestPath",list->at(iList)->Destdir.path());
+        m_qsSettings->setValue("Destination"+QString::number(iList)+"/CreateCopy",list->at(iList)->createCopy);
+        m_qsSettings->setValue("Destination"+QString::number(iList)+"/NbFiles",list->at(iList)->FileList.size());
+        for (int iStringList=0;iStringList<list->at(iList)->FileList.size();iStringList++)
+        {
+             m_qsSettings->setValue("Destination"+QString::number(iList)+"/Files"+QString::number(iStringList),list->at(iList)->FileList.at(iStringList));
+        }
+    }
+    if (filesDir!=NULLDIR)
+        m_qsSettings->setValue("Destination/filesDir",filesDir);
 }
 
-void Settings::load()
+void Settings::load(QRect *windowsRect,QList<COPYSTRUCT*>* list,QString* filesDir)
 {
-    m_WindowRect.setX(m_qsSettings->value("General/WindowRectX","100").toInt());
-    m_WindowRect.setY(m_qsSettings->value("General/WindowRectY","100").toInt());
-    m_WindowRect.setHeight(m_qsSettings->value("General/WindowRectHeight","600").toInt());
-    m_WindowRect.setWidth(m_qsSettings->value("General/WindowRectWidth","800").toInt());
+    int nbDest=0;
+    int nbFile=0;
 
-    for (int i=0;i<7;i++)
-        m_qlDayDiplay.replace(i,m_qsSettings->value("Days/DisplayDay"+QString::number(i),QString::number(1)).toInt());
+    windowsRect->setX(m_qsSettings->value("General/WindowRectX","200").toInt());
+    windowsRect->setY(m_qsSettings->value("General/WindowRectY","200").toInt());
+    windowsRect->setHeight(m_qsSettings->value("General/WindowRectHeight","600").toInt());
+    windowsRect->setWidth(m_qsSettings->value("General/WindowRectWidth","800").toInt());
+
+    nbDest = m_qsSettings->value("Destination/nbDest","0").toInt();
+
+    for (int iDest=0;iDest<nbDest;iDest++)
+    {
+        list->append(new COPYSTRUCT);
+        list->last()->Id = m_qsSettings->value("Destination"+QString::number(iDest)+"/ID","0").toLongLong();
+        list->last()->createCopy = m_qsSettings->value("Destination"+QString::number(iDest)+"/CreateCopy","0").toBool();
+        list->last()->Destdir = QDir(m_qsSettings->value("Destination"+QString::number(iDest)+"/DestPath","Error").toString());
+        nbFile = m_qsSettings->value("Destination"+QString::number(iDest)+"/NbFiles","0").toInt();
+        for (int iStringList=0;iStringList<nbFile;iStringList++)
+        {
+            list->last()->FileList.append(m_qsSettings->value("Destination"+QString::number(iDest)+"/Files"+QString::number(iStringList),"Error").toString());
+        }
+    }
+    *filesDir = m_qsSettings->value("Destination/filesDir",NULLDIR).toString();
 }

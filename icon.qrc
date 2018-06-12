@@ -7,5 +7,12 @@
         <file>Icon/server.png</file>
         <file>Icon/garbage.png</file>
         <file>Icon/more.png</file>
+        <file>Icon/play.png</file>
+        <file>Icon/info.png</file>
+        <file>Icon/repeat.png</file>
+        <file>Icon/dll.png</file>
+        <file>Icon/exe.png</file>
+        <file>Icon/checked.png</file>
+        <file>Icon/success16.png</file>
     </qresource>
 </RCC>

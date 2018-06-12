@@ -1,5 +1,5 @@
-#ifndef POPUPNEWDESTINATION_H
-#define POPUPNEWDESTINATION_H
+#ifndef ABOUT_H
+#define ABOUT_H
 
 #include <QObject>
 #include <QDialog>
@@ -11,45 +11,26 @@
 #include <QLabel>
 #include <QDir>
 #include <QFileDialog>
-#include <QCheckBox>
+#include <QVersionNumber>
 
 #include "pushbutton.h"
 #include "define.h"
 
-#define LEFT 10
-#define TOP 10
-#define SPACE 10
-
-
-
-class PopUpNewDestination : public QDialog
+class About : public QDialog
 {
     Q_OBJECT
 public:
-    explicit PopUpNewDestination(QWidget *parent = 0,QDir dir=QDir(NULLDIR),bool createCopy=false);
-    QDir getQDir();
-    bool getCreateCopy();
+    explicit About(QWidget *parent = 0);
 
 private:
     QVBoxLayout* m_qvblMainLayout;
-    QLabel* m_qlName;
-    QHBoxLayout* m_qvblPathLayout;
-    PushButton* m_qlValidFolderPath;
-    QLineEdit* m_qleFolderPath;
-    PushButton* m_qpbOpenFolerPath;
-    QCheckBox* m_qcbCreateCopy;
-    QDialogButtonBox* mqdbButtons;
-    QDir m_qdCurrentFolder;
-    bool m_bNew;
 
-    void NewFolder(bool setText=false);
-    void NewDir(QString path);
+    QLabel* m_qlVersion;
+    QVersionNumber m_qvnVersion;
+    PushButton* m_pbLogo;
 
 private slots:
-    void OpenFolerPathClickedSlot();
-    void LineFolderPathChangeSlot();
-    void DialogBoxButtonSlot(QAbstractButton* button);
-    void ExitSlot(bool ok=false);
+
 };
 
-#endif // POPUPNEWDESTINATION_H
+#endif // ABOUT_H

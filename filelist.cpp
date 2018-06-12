@@ -2,18 +2,63 @@
 
 FileList::FileList(QWidget *parent) : QListWidget(parent)
 {
-    setAcceptDrops(true);
-
-    m_qlCheckBoxList = new QList<QCheckBox*>;
+    m_qlCheckBoxList = new QList<CheckBox*>;
+    m_bShiftPressed=false;
 }
 
-void FileList::setList(QStringList list)
+void FileList::setList(QStringList list,QList<QIcon> iconList)
 {
     for(int iList=0;iList<list.size();iList++)
-    {
+    {         
+        m_qlCheckBoxList->append(new CheckBox(this,list.at(iList)));
+        m_qlCheckBoxList->last()->setObjectName(QString::number(iList));
+        m_qlCheckBoxList->last()->setIcon(iconList.at(iList));
+        m_qlCheckBoxList->last()->setStyleSheet(" QCheckBox::indicator:checked{image: url(:/Icon/success16.png);}QCheckBox::indicator:unchecked{image: url(:);}");
         addItem("");
-        m_qlCheckBoxList->append(new QCheckBox(list.at(iList)));
+        item(m_qlCheckBoxList->size()-1)->setSizeHint(QSize(item(m_qlCheckBoxList->size()-1)->sizeHint().width(), 20));
         setItemWidget(item(iList),m_qlCheckBoxList->at(iList));
+        connect(m_qlCheckBoxList->at(iList),SIGNAL(checkStateChangeSignal(QString)),this,SLOT(sendSelectedFilesSlot(QString)));
+    }
+    emit newFileListSignal();
+}
+
+void FileList::sendSelectedFilesSlot(QString name)
+{
+    QStringList signalList;
+    int index = name.toInt();
+    bool state =  m_qlCheckBoxList->at(index)->isChecked();
+
+    if (m_bShiftPressed)
+    {
+        for(int iCheck=index-1;iCheck>=0;iCheck--)
+        {
+            if (m_qlCheckBoxList->at(iCheck)->isChecked() != state)
+                m_qlCheckBoxList->at(iCheck)->setChecked(state);
+            else
+                break;
+        }
+    }
+
+    for(int iCheck=0;iCheck<m_qlCheckBoxList->size();iCheck++)
+    {
+        if (m_qlCheckBoxList->at(iCheck)->isChecked())
+            signalList.append(m_qlCheckBoxList->at(iCheck)->text());
+    }
+    emit sendSelectedFilesSlotSignal(signalList);
+}
+
+void FileList::setSelected(QStringList list)
+{
+    for(int iCheck=0;iCheck<m_qlCheckBoxList->size();iCheck++)
+         m_qlCheckBoxList->at(iCheck)->setChecked(false);
+
+    for(int iCheck=0;iCheck<m_qlCheckBoxList->size();iCheck++)
+    {
+        for(int iList=0;iList<list.size();iList++)
+        {
+            if (m_qlCheckBoxList->at(iCheck)->text() == list.at(iList))
+                m_qlCheckBoxList->at(iCheck)->setChecked(true);
+        }
     }
 }
 
@@ -27,6 +72,21 @@ void FileList::emptyList()
        m_qlCheckBoxList->removeLast();
     }
     clear();
+}
+void FileList::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Shift)
+    {
+        m_bShiftPressed = true;
+    }
+}
+
+void FileList::keyReleaseEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Shift)
+    {
+        m_bShiftPressed = false;
+    }
 }
 
 void FileList::dragEnterEvent(QDragEnterEvent *event)

@@ -1,8 +1,10 @@
 #include "destinationitem.h"
 
-DestinationItem::DestinationItem(QWidget *parent,QDir dir) : QWidget(parent)
+DestinationItem::DestinationItem(QWidget *parent,QDir dir,bool createCopy) : QWidget(parent)
 {
     QFont font;
+
+    m_qdDir = nullptr;
 
     m_qvblMainLayout = new QHBoxLayout(this);
     this->setLayout(m_qvblMainLayout);
@@ -22,21 +24,42 @@ DestinationItem::DestinationItem(QWidget *parent,QDir dir) : QWidget(parent)
     m_qvblMainLayout->addLayout(m_qvblButtonLayout);
 
     m_pbEdit = new PushButton(this,":/Icon/more.png");
+    m_pbEdit->setToolTip("Edit");
     m_qvblButtonLayout->addWidget(m_pbEdit,0,Qt::AlignRight);
     connect(m_pbEdit,SIGNAL(clicked(bool)),this,SLOT(EditClicked()));
 
     m_pbDel = new PushButton(this,":/Icon/garbage.png");
+    m_pbDel->setToolTip("Delete");
     m_qvblButtonLayout->addWidget(m_pbDel,0,Qt::AlignRight);
     connect(m_pbDel,SIGNAL(clicked(bool)),this,SLOT(DelClicked()));
 
     setDir(dir);
+    setCreateCopy(createCopy);
 }
 
 void DestinationItem::setDir(QDir dir)
 {
+    m_qdDir = dir;
+
     m_qlName->setText(dir.dirName());
     m_qlPath->setText(dir.path());
 }
+
+QDir DestinationItem::getDir()
+{
+    return m_qdDir;
+}
+
+bool DestinationItem::getCreateCopy()
+{
+    return m_bCreateCopy;
+}
+
+void DestinationItem::setCreateCopy(bool createCopy)
+{
+   m_bCreateCopy = createCopy;
+}
+
 void DestinationItem::EditClicked()
 {
     emit EditClickedSignal(this->objectName());

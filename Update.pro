@@ -5,6 +5,10 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += winextras
+LIBS     += -lgdi32
+
+VERSION  = 1.0.0
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -20,7 +24,12 @@ SOURCES += main.cpp\
     destinationwidget.cpp \
     destinationlist.cpp \
     popupnewdestination.cpp \
-    destinationitem.cpp
+    destinationitem.cpp \
+    settings.cpp \
+    copyfiles.cpp \
+    filecopyitem.cpp \
+    checkbox.cpp \
+    about.cpp
 
 HEADERS  += mainwindow.h \
     loadfilewidget.h \
@@ -29,7 +38,13 @@ HEADERS  += mainwindow.h \
     destinationwidget.h \
     destinationlist.h \
     popupnewdestination.h \
-    destinationitem.h
+    destinationitem.h \
+    settings.h \
+    copyfiles.h \
+    filecopyitem.h \
+    define.h \
+    checkbox.h \
+    about.h
 
 FORMS    += mainwindow.ui
 

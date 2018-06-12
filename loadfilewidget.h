@@ -8,37 +8,43 @@
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QDir>
+#include <QtWin>
 
 #include "pushbutton.h"
 #include "filelist.h"
+#include "define.h"
 
 class LoadFileWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LoadFileWidget(QWidget *parent = 0);
+    explicit LoadFileWidget(QWidget *parent = 0,QString filesDir="");
+    void setStringList(QStringList list);
+    QDir getDir();
 
 private:
     QVBoxLayout* m_qvblMainLayout;
-
     QHBoxLayout* m_qvblPathLayout;
     QLineEdit* m_qleFolderPath;
     PushButton* m_qpbOpenFolerPath;
     PushButton* m_qlValidFolderPath;
     FileList* m_flFileList;
-
-    QDir* m_qdCurrentFolder;
+    QDir m_qdCurrentFolder;
     QStringList* m_qslFileList;
 
     void NewFolder();
     void NewDir(QString path);
-
+    QIcon getIconApp(QString path);
 
 private slots:
-    void OpenFolerPathClicked();
-    void LineFolderPathReturn();
+    void OpenFolerPathClickedSlot();
+    void LineFolderPathReturnSlot();
+    void sendSelectedFilesSlotSlot(QStringList);
+    void newFilesListSlot();
 
-public slots:
+signals:
+    void sendSelectedFilesSlotSignal(QStringList);
+    void newFilesListSignal();
 };
 
 #endif // LOADFILEWIDGET_H

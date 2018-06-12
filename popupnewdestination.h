@@ -11,8 +11,10 @@
 #include <QLabel>
 #include <QDir>
 #include <QFileDialog>
+#include <QCheckBox>
 
 #include "pushbutton.h"
+#include "define.h"
 
 #define LEFT 10
 #define TOP 10
@@ -24,34 +26,30 @@ class PopUpNewDestination : public QDialog
 {
     Q_OBJECT
 public:
-    explicit PopUpNewDestination(QWidget *parent = 0);
-
-    QDir* getQDir();
+    explicit PopUpNewDestination(QWidget *parent = 0,QDir dir=QDir(NULLDIR),bool createCopy=false);
+    QDir getQDir();
+    bool getCreateCopy();
 
 private:
     QVBoxLayout* m_qvblMainLayout;
-
     QLabel* m_qlName;
-
     QHBoxLayout* m_qvblPathLayout;
     PushButton* m_qlValidFolderPath;
     QLineEdit* m_qleFolderPath;
     PushButton* m_qpbOpenFolerPath;
-
+    QCheckBox* m_qcbCreateCopy;
     QDialogButtonBox* mqdbButtons;
+    QDir m_qdCurrentFolder;
+    bool m_bNew;
 
-    QDir* m_qdCurrentFolder;
-
-    void NewFolder();
+    void NewFolder(bool setText=false);
     void NewDir(QString path);
 
-signals:
-
 private slots:
-    void OpenFolerPathClicked();
-    void LineFolderPathReturn();
-    void acceptButton();
-    void rejectedButton();
+    void OpenFolerPathClickedSlot();
+    void LineFolderPathChangeSlot();
+    void DialogBoxButtonSlot(QAbstractButton* button);
+    void ExitSlot(bool ok=false);
 };
 
 #endif // POPUPNEWDESTINATION_H

@@ -9,24 +9,28 @@
 #include <QHBoxLayout>
 
 #include "pushbutton.h"
+#include "define.h"
 
 class DestinationItem : public QWidget
 {
     Q_OBJECT
 public:
-    explicit DestinationItem(QWidget *parent = 0,QDir dir = QDir(""));
+    explicit DestinationItem(QWidget *parent = 0,QDir dir = QDir(NULLDIR),bool createCopy=false);
     void setDir(QDir dir);
+    QDir getDir();
+    bool getCreateCopy();
+    void setCreateCopy(bool createCopy);
 
 private:
     QHBoxLayout* m_qvblMainLayout;
     QVBoxLayout* m_qvblButtonLayout;
     QVBoxLayout* m_qvblTextLayout;
-
     QLabel* m_qlName;
     QLabel* m_qlPath;
-
+    bool m_bCreateCopy;
     PushButton* m_pbEdit;
     PushButton* m_pbDel;
+    QDir m_qdDir;
 
 signals:
     void EditClickedSignal(QString name);

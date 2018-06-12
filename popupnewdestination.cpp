@@ -1,17 +1,20 @@
 #include "popupnewdestination.h"
 
-PopUpNewDestination::PopUpNewDestination(QWidget *parent) : QDialog(parent)
+PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,bool createCopy) : QDialog(parent)
 {   
     QFont font;
     QPalette pal = palette();
 
-    m_qdCurrentFolder = nullptr;
+    m_qdCurrentFolder.setPath(NULLDIR);
+    m_bNew=true;
 
-    setMaximumSize(300,200);
-    setMinimumSize(300,200);
+    setModal(true);
+    setMaximumSize(300,250);
+    setMinimumSize(300,250);
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);
     setPalette(pal);
+    setWindowTitle("New Folder");
 
     m_qvblMainLayout = new QVBoxLayout(this);
     this->setLayout(m_qvblMainLayout);
@@ -29,7 +32,8 @@ PopUpNewDestination::PopUpNewDestination(QWidget *parent) : QDialog(parent)
     m_qvblPathLayout = new QHBoxLayout(m_qvblMainLayout->widget());
     m_qvblMainLayout->addLayout(m_qvblPathLayout);
 
-    m_qlValidFolderPath = new PushButton(this,":/Icon/error.png");
+    m_qlValidFolderPath = new PushButton(this,":/Icon/error.png",false);
+    m_qlValidFolderPath->setToolTip("Error");
     m_qlValidFolderPath->setMinimumSize(22,22);
     m_qlValidFolderPath->setIconSize(QSize(22,22));
     m_qvblPathLayout->addWidget(m_qlValidFolderPath);
@@ -38,87 +42,116 @@ PopUpNewDestination::PopUpNewDestination(QWidget *parent) : QDialog(parent)
     m_qleFolderPath->setStyleSheet(" QLineEdit {border: 2px solid gray;border-radius: 5px;padding: 0 8px;}");
     m_qleFolderPath->setMinimumWidth(200);
     m_qvblPathLayout->addWidget(m_qleFolderPath);
-    connect(m_qleFolderPath,SIGNAL(textChanged(QString)),this,SLOT(LineFolderPathReturn()));
+    connect(m_qleFolderPath,SIGNAL(textChanged(QString)),this,SLOT(LineFolderPathChangeSlot()));
 
     m_qpbOpenFolerPath = new PushButton(this,":/Icon/folder.png");
-    connect(m_qpbOpenFolerPath,SIGNAL(clicked(bool)),this,SLOT(OpenFolerPathClicked()));
+    m_qpbOpenFolerPath->setToolTip("Open new folder");
+    connect(m_qpbOpenFolerPath,SIGNAL(clicked(bool)),this,SLOT(OpenFolerPathClickedSlot()));
     m_qpbOpenFolerPath->setMinimumSize(22,22);
     m_qpbOpenFolerPath->setIconSize(QSize(22,22));
     m_qvblPathLayout->addWidget(m_qpbOpenFolerPath);
 
+    m_qvblMainLayout->addSpacing(20);
+    m_qcbCreateCopy = new QCheckBox("Create copy with date",this);
+    m_qcbCreateCopy->setChecked(createCopy);
+    m_qvblMainLayout->addWidget(m_qcbCreateCopy);
+
     mqdbButtons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,this);
     m_qvblMainLayout->addWidget(new QLabel(this));
     m_qvblMainLayout->addWidget(mqdbButtons);
-    connect(mqdbButtons, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(mqdbButtons, SIGNAL(rejected()), this, SLOT(reject()));
+    mqdbButtons->button(QDialogButtonBox::Ok)->setEnabled(false);
+    connect(mqdbButtons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(DialogBoxButtonSlot(QAbstractButton*)));
 
+    connect(this, SIGNAL(finished(int)), this, SLOT(ExitSlot()));
+
+    if (dir.path()!=NULLDIR)
+    {
+        NewDir(dir.path());
+        NewFolder(true);
+        m_qcbCreateCopy->setChecked(createCopy);
+        m_bNew=false;
+    }  
     show();
 }
 
-void PopUpNewDestination::OpenFolerPathClicked()
+void PopUpNewDestination::OpenFolerPathClickedSlot()
 {
     QString dir = "";
 
-    dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                     "/",
-                                                     QFileDialog::ShowDirsOnly
-                                                     | QFileDialog::DontResolveSymlinks);
-    NewDir(dir);
-    NewFolder();
+    dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),"/");
+
+    if (dir!="")
+    {
+        NewDir(dir);
+        NewFolder(true);
+    }
 }
 
 void PopUpNewDestination::NewDir(QString path)
 {
     QDir dir(path);
 
-    if (m_qdCurrentFolder)
-        delete m_qdCurrentFolder;
-    m_qdCurrentFolder=nullptr;
-
-    if (dir.exists())
+    if (dir.exists() && path!=NULLDIR)
     {
-        m_qdCurrentFolder = new QDir(dir);
+        m_qdCurrentFolder.setPath(path);
+    }
+    else
+    {
+        m_qdCurrentFolder.setPath(NULLDIR);
     }
 }
-void PopUpNewDestination::LineFolderPathReturn()
+void PopUpNewDestination::LineFolderPathChangeSlot()
 {
      NewDir(m_qleFolderPath->text());
-     NewFolder();
+     NewFolder(false);
 }
 
-void PopUpNewDestination::NewFolder()
+void PopUpNewDestination::NewFolder(bool setText)
 {
 
      m_qlValidFolderPath->setIconCustom(":/Icon/error.png");
+     m_qlValidFolderPath->setToolTip("Error");
+     mqdbButtons->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    if (!m_qdCurrentFolder)
+    if (m_qdCurrentFolder.path()==NULLDIR)
         return;
 
-    m_qleFolderPath->setText(m_qdCurrentFolder->path());
-    m_qlName->setText(m_qdCurrentFolder->dirName());
+    if (setText)
+        m_qleFolderPath->setText(m_qdCurrentFolder.path());
+
+    m_qlName->setText(m_qdCurrentFolder.dirName());
     m_qlValidFolderPath->setIconCustom(":/Icon/success.png");
+    m_qlValidFolderPath->setToolTip("Success");
+    mqdbButtons->button(QDialogButtonBox::Ok)->setEnabled(true);
 
 }
 
-void PopUpNewDestination::acceptButton()
+void PopUpNewDestination::DialogBoxButtonSlot(QAbstractButton* button)
 {
-    close();
-}
-
-void PopUpNewDestination::rejectedButton()
-{
-    if (m_qdCurrentFolder)
-        delete m_qdCurrentFolder;
-    m_qdCurrentFolder = nullptr;
-
-    close();
-}
-
-QDir* PopUpNewDestination::getQDir()
-{
-    if(m_qdCurrentFolder)
-        return new QDir(*m_qdCurrentFolder);
+    if (button == mqdbButtons->button(QDialogButtonBox::Ok))
+    {
+       disconnect(this, SIGNAL(finished(int)), this, SLOT(ExitSlot()));
+       ExitSlot(true);
+    }
     else
-        return nullptr;
+    {
+       ExitSlot();
+    }
+}
+void PopUpNewDestination::ExitSlot(bool ok)
+{
+    if (m_bNew && !ok)
+        m_qdCurrentFolder.setPath(NULLDIR);
+    close();
+}
+
+QDir PopUpNewDestination::getQDir()
+{
+    return m_qdCurrentFolder;
+}
+
+bool PopUpNewDestination::getCreateCopy()
+{
+    return m_qcbCreateCopy->isChecked();
 }
 
