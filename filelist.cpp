@@ -33,7 +33,7 @@ void FileList::sendSelectedFilesSlot(QString name)
         for(int iCheck=index-1;iCheck>=0;iCheck--)
         {
             if (m_qlCheckBoxList->at(iCheck)->isChecked() != state)
-                m_qlCheckBoxList->at(iCheck)->setChecked(state);
+                setCheckedCheckBox(iCheck,state);
             else
                 break;
         }
@@ -50,14 +50,14 @@ void FileList::sendSelectedFilesSlot(QString name)
 void FileList::setSelected(QStringList list)
 {
     for(int iCheck=0;iCheck<m_qlCheckBoxList->size();iCheck++)
-         m_qlCheckBoxList->at(iCheck)->setChecked(false);
+         setCheckedCheckBox(iCheck,false);
 
     for(int iCheck=0;iCheck<m_qlCheckBoxList->size();iCheck++)
     {
         for(int iList=0;iList<list.size();iList++)
         {
             if (m_qlCheckBoxList->at(iCheck)->text() == list.at(iList))
-                m_qlCheckBoxList->at(iCheck)->setChecked(true);
+                setCheckedCheckBox(iCheck,true);
         }
     }
 }
@@ -87,6 +87,15 @@ void FileList::keyReleaseEvent(QKeyEvent *event)
     {
         m_bShiftPressed = false;
     }
+}
+
+void FileList::setCheckedCheckBox(int index,bool state)
+{
+    m_qlCheckBoxList->at(index)->setChecked(state);
+    if (state)
+        m_qlCheckBoxList->at(index)->setToolTip("File selected");
+    else
+        m_qlCheckBoxList->at(index)->setToolTip("");
 }
 
 void FileList::dragEnterEvent(QDragEnterEvent *event)

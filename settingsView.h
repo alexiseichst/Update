@@ -1,5 +1,5 @@
-#ifndef ABOUT_H
-#define ABOUT_H
+#ifndef SETTINGSVIEW_H
+#define SETTINGSVIEW_H
 
 #include <QObject>
 #include <QDialog>
@@ -16,21 +16,17 @@
 #include "pushbutton.h"
 #include "define.h"
 
-class About : public QDialog
+class SettingsView : public QDialog
 {
     Q_OBJECT
 public:
-    explicit About(QWidget *parent = 0);
+    explicit SettingsView(QWidget *parent = 0);
 
 private:
     QVBoxLayout* m_qvblMainLayout;
-
-    QLabel* m_qlVersion;
-    QVersionNumber m_qvnVersion;
-    PushButton* m_pbLogo;
 
 private slots:
 
 };
 
-#endif // ABOUT_H
+#endif // SETTINGSVIEW_H

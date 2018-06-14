@@ -39,3 +39,8 @@ void PushButton::releasedSlot()
     }
 
 }
+
+void PushButton::setClickable(bool clickable)
+{
+    m_bClickable = clickable;
+}

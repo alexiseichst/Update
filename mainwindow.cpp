@@ -33,13 +33,35 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_lfwLoadFileWidget,SIGNAL(sendSelectedFilesSlotSignal(QStringList)),SLOT(newSelectedFilesSlot(QStringList)));
     connect(m_lfwLoadFileWidget,SIGNAL(newFilesListSignal()),this,SLOT(newFilesListSlot()));
 
+    m_qhblCenterLayout= new QVBoxLayout(this);
+    m_qhblCenterLayout->setAlignment(Qt::AlignCenter);
+    m_qhblMainLayout->addLayout(m_qhblCenterLayout);
+
     m_pbPlayButton = new PushButton(this,":/Icon/play.png");
     m_pbPlayButton->setToolTip("Start copy");
     m_pbPlayButton->setMinimumSize(30,30);
     m_pbPlayButton->setIconSize(QSize(30,30));
-    m_qhblMainLayout->addWidget(m_pbPlayButton);
+    m_qhblCenterLayout->addWidget(m_pbPlayButton);
     m_pbPlayButton->setDisabled(true);
-    connect(m_pbPlayButton,SIGNAL(clicked(bool)),SLOT(OnPlayButtonClicked()));
+    connect(m_pbPlayButton,SIGNAL(clicked(bool)),SLOT(playSlot()));
+
+    m_qhblCenterLayout->setSpacing(50);
+
+    m_pbSettingsButton =  new PushButton(this,":/Icon/settings.png");
+    m_pbSettingsButton->setToolTip("Settings");
+    m_pbSettingsButton->setMinimumSize(30,30);
+    m_pbSettingsButton->setIconSize(QSize(30,30));
+    connect(m_pbSettingsButton,SIGNAL(clicked(bool)),SLOT(settingsSlot()));
+    m_qhblCenterLayout->addWidget(m_pbSettingsButton);
+
+    m_qhblCenterLayout->setSpacing(50);
+
+    m_pbAboutButton =  new PushButton(this,":/Icon/info.png");
+    m_pbAboutButton->setToolTip("About");
+    m_pbAboutButton->setMinimumSize(30,30);
+    m_pbAboutButton->setIconSize(QSize(30,30));
+    connect(m_pbAboutButton,SIGNAL(clicked(bool)),SLOT(aboutSlot()));
+    m_qhblCenterLayout->addWidget(m_pbAboutButton);
 
     for (int iList=0;iList<m_qlCopyList->size();iList++)
     {
@@ -54,16 +76,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_qhblMainLayout->addWidget(m_lfwDestinationWidget);
     connect(m_lfwDestinationWidget,SIGNAL(selectedListSignal(QList<DESTSELECT>)),SLOT(destinationListChange(QList<DESTSELECT>)));
     m_lfwDestinationWidget->selectedChange();
-
-    m_qhblBottomLayout= new QHBoxLayout(this);
-    m_qhblBottomLayout->setAlignment(Qt::AlignRight);
-    m_qhblAppLayout->addLayout(m_qhblBottomLayout);
-
-    m_pbAboutButton =  new PushButton(this,":/Icon/info.png");
-    m_pbAboutButton->setMinimumSize(20,20);
-    m_pbAboutButton->setIconSize(QSize(20,20));
-    connect(m_pbAboutButton,SIGNAL(clicked(bool)),SLOT(aboutSlot()));
-    m_qhblBottomLayout->addWidget(m_pbAboutButton);
 
     setGeometry(windowsRect);
 
@@ -185,7 +197,7 @@ void MainWindow::newSelectedFilesSlot(QStringList list)
     validPlay();
 }
 
-void MainWindow::OnPlayButtonClicked()
+void MainWindow::playSlot()
 {
     if (m_cfCopyFiles)
         delete m_cfCopyFiles;
@@ -195,7 +207,7 @@ void MainWindow::OnPlayButtonClicked()
     m_cfCopyFiles->setFilesDir(m_lfwLoadFileWidget->getDir());
     m_cfCopyFiles->setStructList(m_qlCopyList);
     QCoreApplication::processEvents();
-    m_cfCopyFiles->startCopy();
+    m_cfCopyFiles->startCopySlot(true,true);
 
 }
 
@@ -225,4 +237,14 @@ void MainWindow::aboutSlot()
     about->exec();
 
     delete about;
+}
+
+void MainWindow::settingsSlot()
+{
+    SettingsView* settings = nullptr;
+
+    settings = new SettingsView(this);
+    settings->exec();
+
+    delete settings;
 }

@@ -13,6 +13,7 @@
 #include "copyfiles.h"
 #include "define.h"
 #include "about.h"
+#include "settingsView.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,17 +32,16 @@ public:
 private:
     Ui::MainWindow *ui;
     QVBoxLayout* m_qhblAppLayout;
-
     QHBoxLayout* m_qhblMainLayout;
     LoadFileWidget *m_lfwLoadFileWidget;
-    PushButton* m_pbPlayButton;
     DestinationWidget *m_lfwDestinationWidget;
     QList<COPYSTRUCT*> *m_qlCopyList;
     COPYSTRUCT* m_cpCurrentCopyStruct;
     CopyFiles* m_cfCopyFiles;
-
-    QHBoxLayout* m_qhblBottomLayout;
+    QVBoxLayout* m_qhblCenterLayout;
+    PushButton* m_pbPlayButton;
     PushButton* m_pbAboutButton;
+    PushButton* m_pbSettingsButton;
 
     void updateSelectedFiles();
     void validPlay();
@@ -49,9 +49,10 @@ private:
 private slots:
     void destinationListChange(QList<DESTSELECT> list);
     void newSelectedFilesSlot(QStringList list);
-    void OnPlayButtonClicked();
+    void playSlot();
     void newFilesListSlot();
     void aboutSlot();
+    void settingsSlot();
 };
 
 #endif // MAINWINDOW_H

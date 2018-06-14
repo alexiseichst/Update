@@ -21,13 +21,13 @@ FileCopyItem::FileCopyItem(QWidget *parent,QStringList* files,QDir filesDir,QDir
     m_qvbRight= new QVBoxLayout();
     m_qhblMainLayout->addLayout(m_qvbRight);
 
-    m_pbInfo = new PushButton(this,"");
+    m_pbInfo = new PushButton(this,"",true);
     m_pbInfo->setMinimumSize(17,17);
     m_pbInfo->setIconSize(QSize(17,17));
     m_qvbRight->addWidget(m_pbInfo);
     connect(m_pbInfo,SIGNAL(clicked(bool)),this,SLOT(infoSlot()));
 
-    m_pbState = new PushButton(this,"");
+    m_pbState = new PushButton(this,"",false);
     m_pbState->setMinimumSize(17,17);
     m_pbState->setIconSize(QSize(17,17));
     m_qvbRight->addWidget(m_pbState);
@@ -39,159 +39,58 @@ FileCopyItem::FileCopyItem(QWidget *parent,QStringList* files,QDir filesDir,QDir
     m_qdFilesDir = filesDir;
     m_bCreateCopy = createCopy;
     m_qsCopyResult = "";
+
+    m_tcThreadCopy=nullptr;
+    m_repeatClicked=false;
 }
 
-void FileCopyItem::startCopy()
+FileCopyItem::~FileCopyItem()
 {
-    QString sourceFile = "";
-    QString destFile = "";
-    QString errorReport = "";
-    QDir destCopyDir;
-    bool error=false;
-    int cptFiles=0;
-    QStringList tmpCopyList;
+   stopCopy();
+}
 
-    tmpCopyList.clear();
-
-    m_qpbProgressBar->setValue(0);
-    m_pbState->setIconCustom("");
-    m_pbInfo->setIconCustom("");
-
-    if (m_qdFilesDir.exists() && m_qdDest.exists() && m_bCreateCopy)
-    {
-        QString tmp;
-        QString destCopy = m_qdDest.path();
-
-        destCopy.remove(destCopy.size()-1);
-
-        tmp = QString::number(QDate::currentDate().month());
-        tmp.size()==1?tmp.insert(0,"0"):tmp=tmp;
-        destCopy.append("_"+tmp);
-
-        tmp = QString::number(QDate::currentDate().day());
-        tmp.size()==1?tmp.insert(0,"0"):tmp=tmp;
-        destCopy.append(tmp);
-
-        tmp = QString::number(QDate::currentDate().year());
-        tmp = tmp.mid(2,2);
-        destCopy.append(tmp);
-        destCopyDir.setPath(destCopy+"/");
-
-        if (destCopyDir.exists())
-        {
-            int cpt=1;
-            QString tmp = destCopyDir.path();
-            QDir tmpDir;
-            tmp.append("_"+QString::number(cpt));
-            tmpDir.setPath(tmp);
-
-            while(tmpDir.exists())
-            {
-                cpt++;
-                tmp = destCopyDir.path();
-                tmp.append("_"+QString::number(cpt));
-                tmpDir.setPath(tmp);
-
-                if (cpt>=36000)
-                    errorReport.append("Impossible to create the copy folder");
-            }
-            destCopyDir.setPath(tmp);
-        }
-
-        if (errorReport.isEmpty())
-        {
-            QString tmp = destCopyDir.path();
-            QDir tmpDir;
-            int pos=tmp.size()-1;
-
-            while(tmp.at(pos)!='/')
-                pos--;
-
-            tmp = tmp.mid(0,pos);
-            tmpDir.setPath(tmp);
-            if(!tmpDir.mkdir(destCopyDir.dirName()))
-                errorReport.append("Impossible to create the copy folder");
-        }
-
-        if (errorReport.isEmpty())
-        {
-            QString destCopyFile = "";
-            tmpCopyList = QStringList(m_qdDest.entryList(QStringList() << "*.*",QDir::Files));
-
-            for (int ifile=0;ifile<tmpCopyList.size();ifile++)
-            {
-                sourceFile = m_qdDest.path()+"/"+tmpCopyList.at(ifile);
-                destCopyFile = destCopyDir.path()+"/"+tmpCopyList.at(ifile);
-                if (!QFile::copy(sourceFile,destCopyFile))
-                {
-                    errorReport.append("Source: "+sourceFile);
-                    errorReport.append("\n");
-                    errorReport.append("Dest: "+destCopyFile);
-                    errorReport.append("\n\n");
-                }
-                else
-                {
-                    cptFiles++;
-                    m_qpbProgressBar->setValue(((float)cptFiles*100.0)/(float)(m_qslFiles.size()+tmpCopyList.size()));
-                }
-            }
-        }
-    }
-
-    if (errorReport.isEmpty())
-    {
-        if (m_qdDest.exists())
-        {
-            for (int iFile=0;iFile<m_qslFiles.size();iFile++)
-            {
-                error=false;
-                sourceFile = m_qdFilesDir.path()+"/"+m_qslFiles.at(iFile);
-                destFile =  m_qdDest.path()+"/"+m_qslFiles.at(iFile);
-
-                if (QFile::exists(sourceFile))
-                {
-                    if (QFile::exists(destFile))
-                        QFile::remove(destFile);
-
-                    if (!QFile::copy(sourceFile,destFile))
-                        error=true;
-                }
-                else
-                {
-                    error=true;
-                }
-                if (error)
-                {
-                    errorReport.append("Source: "+sourceFile);
-                    errorReport.append("\n");
-                    errorReport.append("Dest: "+destFile);
-                    errorReport.append("\n\n");
-                }
-                else
-                {
-                    cptFiles++;
-                    m_qpbProgressBar->setValue(((float)cptFiles*100.0)/(float)(m_qslFiles.size()+tmpCopyList.size()));
-                }
-            }
-        }
-        else
-        {
-            errorReport.append("Impossible to find the destination folder : "+m_qdDest.path());
-        }
-    }
+void FileCopyItem::endSlot(QString errorReport)
+{
     if (errorReport.isEmpty())
     {
         m_pbState->setIconCustom(":/Icon/success.png");
-        m_pbInfo->setIconCustom(":/Icon/info.png");
+        m_pbState->setToolTip("Success");
+        m_pbState->setClickable(false);
         disconnect(m_pbState,SIGNAL(clicked(bool)),this,SLOT(repeatSlot()));
     }
     else
     {
         m_pbState->setIconCustom(":/Icon/repeat.png");
-        m_pbInfo->setIconCustom(":/Icon/info.png");
+        m_pbState->setToolTip("Repeat");
+        m_pbState->setClickable(true);
         connect(m_pbState,SIGNAL(clicked(bool)),this,SLOT(repeatSlot()));
     }
     m_qsCopyResult = errorReport;
+    m_pbInfo->setToolTip("Informations");
+    m_pbInfo->setIconCustom(":/Icon/info.png");
+
+    if (errorReport=="Stopped" || m_repeatClicked)
+        emit copyFinished(false,false);
+    else
+        emit copyFinished(false,true);
+}
+
+void FileCopyItem::startCopy()
+{
+    reset();
+    if (m_tcThreadCopy==nullptr)
+    {
+        m_tcThreadCopy = new ThreadCopy();
+        m_tcThreadCopy->setInfos(m_qdDest,m_qdFilesDir,m_qslFiles,m_bCreateCopy);
+        connect(m_tcThreadCopy,SIGNAL(progressBarValueSignal(int)),m_qpbProgressBar,SLOT(setValue(int)));
+        connect(m_tcThreadCopy,SIGNAL(endSignal(QString)),this,SLOT(endSlot(QString)));
+    }
+    else
+    {
+       stopCopy();
+       startCopy();
+    }
+    m_tcThreadCopy->start();
 }
 
 void FileCopyItem::deleteDll()
@@ -225,9 +124,48 @@ void FileCopyItem::deleteDll()
     processList.clear();
 }
 
+void FileCopyItem::reset()
+{
+    m_qpbProgressBar->setValue(0);
+    m_pbState->setIconCustom("");
+    m_pbState->setToolTip("");
+    m_pbInfo->setIconCustom("");
+    m_pbInfo->setToolTip("");
+}
+
 void FileCopyItem::repeatSlot()
 {
+    m_repeatClicked=true;
     startCopy();
+}
+
+bool FileCopyItem::getSuccess()
+{
+    if (m_qsCopyResult.isEmpty())
+        return true;
+    else
+        return false;
+}
+
+void FileCopyItem::stopCopy()
+{
+    int timout=0;
+
+    if (m_tcThreadCopy)
+    {
+        m_tcThreadCopy->stopRun();
+        while (m_tcThreadCopy->isRunning() && timout<10)
+        {
+            this->thread()->msleep(100);
+            timout++;
+        }
+        delete m_tcThreadCopy;
+        m_tcThreadCopy=nullptr;
+    }
+    else
+    {
+       endSlot("Stopped");
+    }
 }
 
 void FileCopyItem::infoSlot()

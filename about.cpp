@@ -4,6 +4,8 @@ About::About(QWidget *parent) : QDialog(parent)
 {   
     QFont font;
     QPalette pal = palette();
+    QPixmap pixmap(":/Icon/info.png");
+    QIcon icon(pixmap);
 
     setModal(true);
     setMaximumSize(200,100);
@@ -12,6 +14,7 @@ About::About(QWidget *parent) : QDialog(parent)
     setAutoFillBackground(true);
     setPalette(pal);
     setWindowTitle("About");
+    setWindowIcon(icon);
 
     m_qvnVersion = QVersionNumber(1, 0, 0);
 

@@ -4,6 +4,9 @@ PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,bool createCop
 {   
     QFont font;
     QPalette pal = palette();
+    QPixmap pixmap(":/Icon/add.png");
+    QIcon icon(pixmap);
+
 
     m_qdCurrentFolder.setPath(NULLDIR);
     m_bNew=true;
@@ -15,6 +18,7 @@ PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,bool createCop
     setAutoFillBackground(true);
     setPalette(pal);
     setWindowTitle("New Folder");
+    setWindowIcon(icon);
 
     m_qvblMainLayout = new QVBoxLayout(this);
     this->setLayout(m_qvblMainLayout);

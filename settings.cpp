@@ -5,11 +5,6 @@ Settings::Settings(QObject *parent) : QObject(parent)
     m_qsSettings = new QSettings("Update.ini", QSettings::IniFormat,this);
 }
 
-Settings::~Settings()
-{
-
-}
-
 void Settings::save(QRect *windowsRect,QList<COPYSTRUCT*>* list,QString filesDir)
 {
     m_qsSettings->clear();

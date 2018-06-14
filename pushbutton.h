@@ -13,6 +13,7 @@ class PushButton : public QPushButton
 public:
     explicit PushButton(QWidget *parent = 0,QString icon="",bool clickable=true);
     void setIconCustom(QString icon);
+    void setClickable(bool clickable);
 
     bool m_bClickable;
     QSize m_qsIconSize;

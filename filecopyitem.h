@@ -17,13 +17,18 @@
 
 #include "pushbutton.h"
 #include "define.h"
+#include "threadcopy.h"
 
 class FileCopyItem : public QWidget
 {
     Q_OBJECT
 public:
     explicit FileCopyItem(QWidget *parent = 0,QStringList* files = nullptr,QDir filesDir=QDir(NULLDIR),QDir dest = QDir(NULLDIR),bool createCopy=false);
+    ~FileCopyItem();
     void startCopy();
+    void stopCopy();
+    void reset();
+    bool getSuccess();
 
 private:
     QStringList m_qslFiles;
@@ -38,12 +43,18 @@ private:
     PushButton* m_pbState;
     PushButton* m_pbInfo;
     QString m_qsCopyResult;
+    ThreadCopy* m_tcThreadCopy;
+    bool m_repeatClicked;
 
     void deleteDll();
 
 private slots:
     void repeatSlot();
     void infoSlot();
+    void endSlot(QString errorReport);
+
+signals:
+    void copyFinished(bool first, bool continueCopy);
 };
 
 #endif // FILECOPYITEM_H

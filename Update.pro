@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += winextras
+QT       += concurrent
 LIBS     += -lgdi32
 
 VERSION  = 1.0.0
@@ -29,7 +30,9 @@ SOURCES += main.cpp\
     copyfiles.cpp \
     filecopyitem.cpp \
     checkbox.cpp \
-    about.cpp
+    about.cpp \
+    settingsView.cpp \
+    threadcopy.cpp
 
 HEADERS  += mainwindow.h \
     loadfilewidget.h \
@@ -44,9 +47,13 @@ HEADERS  += mainwindow.h \
     filecopyitem.h \
     define.h \
     checkbox.h \
-    about.h
+    about.h \
+    settingsView.h \
+    threadcopy.h
 
 FORMS    += mainwindow.ui
 
 RESOURCES += \
     icon.qrc
+
+RC_FILE = myapp.rc

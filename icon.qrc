@@ -12,7 +12,8 @@
         <file>Icon/repeat.png</file>
         <file>Icon/dll.png</file>
         <file>Icon/exe.png</file>
-        <file>Icon/checked.png</file>
         <file>Icon/success16.png</file>
+        <file>Icon/settings.png</file>
+        <file>Icon/stop.png</file>
     </qresource>
 </RCC>

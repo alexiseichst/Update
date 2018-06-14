@@ -35,6 +35,8 @@ protected:
 private:
    bool m_bShiftPressed;
 
+   void setCheckedCheckBox(int index,bool state);
+
 private slots:
     void sendSelectedFilesSlot(QString name);
 

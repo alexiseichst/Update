@@ -22,7 +22,6 @@ class Settings : public QObject
     Q_OBJECT
 public:
     explicit Settings(QObject *parent = 0);
-    ~Settings();
     void save(QRect *windowsRect,QList<COPYSTRUCT*>* list,QString filesDir);
     void load(QRect *windowsRect,QList<COPYSTRUCT*>* list,QString* filesDir);
 
