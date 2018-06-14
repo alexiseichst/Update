@@ -16,7 +16,7 @@ About::About(QWidget *parent) : QDialog(parent)
     setWindowTitle("About");
     setWindowIcon(icon);
 
-    m_qvnVersion = QVersionNumber(1, 0, 0);
+    m_qvnVersion = QVersionNumber(1, 2, 0);
 
     m_qvblMainLayout = new QVBoxLayout(this);
     m_qvblMainLayout->setAlignment(Qt::AlignCenter);
