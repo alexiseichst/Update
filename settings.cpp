@@ -49,11 +49,11 @@ void Settings::load(QRect *windowsRect,QList<COPYSTRUCT*>* list,QString* filesDi
         list->append(new COPYSTRUCT);
         list->last()->Id = m_qsSettings->value("Destination"+QString::number(iDest)+"/ID","0").toLongLong();
         list->last()->createCopy = m_qsSettings->value("Destination"+QString::number(iDest)+"/CreateCopy","0").toBool();
-        list->last()->Destdir = QDir(m_qsSettings->value("Destination"+QString::number(iDest)+"/DestPath","Error").toString());
+        list->last()->Destdir = QDir(m_qsSettings->value("Destination"+QString::number(iDest)+"/DestPath","Erreur").toString());
         nbFile = m_qsSettings->value("Destination"+QString::number(iDest)+"/NbFiles","0").toInt();
         for (int iStringList=0;iStringList<nbFile;iStringList++)
         {
-            list->last()->FileList.append(m_qsSettings->value("Destination"+QString::number(iDest)+"/Files"+QString::number(iStringList),"Error").toString());
+            list->last()->FileList.append(m_qsSettings->value("Destination"+QString::number(iDest)+"/Files"+QString::number(iStringList),"Erreur").toString());
         }
     }
     *filesDir = m_qsSettings->value("Destination/filesDir",NULLDIR).toString();

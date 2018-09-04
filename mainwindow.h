@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QList>
 #include <QString>
+#include <QTimer>
 
 #include "loadfilewidget.h"
 #include "destinationwidget.h"
@@ -14,6 +15,7 @@
 #include "define.h"
 #include "about.h"
 #include "settingsView.h"
+#include "missingfiles.h"
 
 namespace Ui {
 class MainWindow;
@@ -42,9 +44,13 @@ private:
     PushButton* m_pbPlayButton;
     PushButton* m_pbAboutButton;
     PushButton* m_pbSettingsButton;
+    PushButton* m_pbWarningButton;
+    QTimer* m_qtWarningTimer;
 
     void updateSelectedFiles();
     void validPlay();
+    void missingFile(bool openWindow=false);
+    void preferences();
 
 private slots:
     void destinationListChange(QList<DESTSELECT> list);
@@ -53,6 +59,8 @@ private slots:
     void newFilesListSlot();
     void aboutSlot();
     void settingsSlot();
+    void warningSlot();
+    void warningTimerSlot();
 };
 
 #endif // MAINWINDOW_H

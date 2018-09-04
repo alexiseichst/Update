@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_qhblAppLayout = new QVBoxLayout(ui->centralWidget);
 
-    m_qhblMainLayout = new QHBoxLayout(this);
+    m_qhblMainLayout = new QHBoxLayout();
     m_qhblAppLayout->addLayout(m_qhblMainLayout);
 
     m_lfwLoadFileWidget = new LoadFileWidget(this,fileFolder);
@@ -33,12 +33,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_lfwLoadFileWidget,SIGNAL(sendSelectedFilesSlotSignal(QStringList)),SLOT(newSelectedFilesSlot(QStringList)));
     connect(m_lfwLoadFileWidget,SIGNAL(newFilesListSignal()),this,SLOT(newFilesListSlot()));
 
-    m_qhblCenterLayout= new QVBoxLayout(this);
+    m_qhblCenterLayout= new QVBoxLayout();
     m_qhblCenterLayout->setAlignment(Qt::AlignCenter);
     m_qhblMainLayout->addLayout(m_qhblCenterLayout);
 
     m_pbPlayButton = new PushButton(this,":/Icon/play.png");
-    m_pbPlayButton->setToolTip("Start copy");
+    m_pbPlayButton->setToolTip("Commencer la copie");
     m_pbPlayButton->setMinimumSize(30,30);
     m_pbPlayButton->setIconSize(QSize(30,30));
     m_qhblCenterLayout->addWidget(m_pbPlayButton);
@@ -48,20 +48,31 @@ MainWindow::MainWindow(QWidget *parent) :
     m_qhblCenterLayout->setSpacing(50);
 
     m_pbSettingsButton =  new PushButton(this,":/Icon/settings.png");
-    m_pbSettingsButton->setToolTip("Settings");
+    m_pbSettingsButton->setToolTip("Paramètres");
     m_pbSettingsButton->setMinimumSize(30,30);
     m_pbSettingsButton->setIconSize(QSize(30,30));
     connect(m_pbSettingsButton,SIGNAL(clicked(bool)),SLOT(settingsSlot()));
     m_qhblCenterLayout->addWidget(m_pbSettingsButton);
+    m_pbSettingsButton->hide();
 
     m_qhblCenterLayout->setSpacing(50);
 
     m_pbAboutButton =  new PushButton(this,":/Icon/info.png");
-    m_pbAboutButton->setToolTip("About");
+    m_pbAboutButton->setToolTip("A propos");
     m_pbAboutButton->setMinimumSize(30,30);
     m_pbAboutButton->setIconSize(QSize(30,30));
     connect(m_pbAboutButton,SIGNAL(clicked(bool)),SLOT(aboutSlot()));
     m_qhblCenterLayout->addWidget(m_pbAboutButton);
+
+    m_pbWarningButton =  new PushButton(this,":/Icon/warning.png");
+    m_pbWarningButton->setToolTip("Fichiers manquants");
+    m_pbWarningButton->setMinimumSize(30,30);
+    m_pbWarningButton->setIconSize(QSize(30,30));
+    m_pbWarningButton->hide();
+    connect(m_pbWarningButton,SIGNAL(clicked(bool)),SLOT(warningSlot()));
+    m_qhblCenterLayout->addWidget(m_pbWarningButton);
+    m_qtWarningTimer = new QTimer(m_pbWarningButton);
+    connect(m_qtWarningTimer,SIGNAL(timeout()),SLOT(warningTimerSlot()));
 
     for (int iList=0;iList<m_qlCopyList->size();iList++)
     {
@@ -78,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_lfwDestinationWidget->selectedChange();
 
     setGeometry(windowsRect);
-
+    missingFile(false);
 }
 
 MainWindow::~MainWindow()
@@ -113,7 +124,8 @@ void MainWindow::destinationListChange(QList<DESTSELECT> list)
         {
             m_qlCopyList->append(new COPYSTRUCT);
             ptCopyStruct = m_qlCopyList->last();
-            ptCopyStruct->Id = list.at(iListArg).id;            
+            ptCopyStruct->Id = list.at(iListArg).id;
+            preferences();
         }
         else // Mise à jour
         {
@@ -145,6 +157,11 @@ void MainWindow::destinationListChange(QList<DESTSELECT> list)
     }
     updateSelectedFiles();
     validPlay();
+}
+
+void MainWindow::preferences()
+{
+    return;
 }
 
 void MainWindow::updateSelectedFiles()
@@ -227,6 +244,7 @@ void MainWindow::validPlay()
 void MainWindow::newFilesListSlot()
 {
     updateSelectedFiles();
+    missingFile(false);
 }
 
 void MainWindow::aboutSlot()
@@ -247,4 +265,103 @@ void MainWindow::settingsSlot()
     settings->exec();
 
     delete settings;
+}
+
+void MainWindow::missingFile(bool openWindow)
+{
+    QStringList filesList;
+    QList<QStringList> missingfiles;
+    QList<QDir> destDirMissingfiles;
+    QList<QStringList> deletefiles;
+    QStringList tmpList;
+    bool valid=false;
+
+    filesList = m_lfwLoadFileWidget->getFilesList();
+
+    for (int iStruct=0;iStruct<m_qlCopyList->size();iStruct++)
+    {
+        tmpList.clear();
+        for (int iFileDest=0;iFileDest<m_qlCopyList->at(iStruct)->FileList.size();iFileDest++)
+        {
+            valid=false;
+            for (int iFile=0;iFile<filesList.size();iFile++)
+            {
+                if (m_qlCopyList->at(iStruct)->FileList.at(iFileDest)==filesList.at(iFile))
+                {
+                    valid=true;
+                    break;
+                }
+            }
+            if (!valid)
+            {
+                tmpList.append(m_qlCopyList->at(iStruct)->FileList.at(iFileDest));
+            }
+        }
+        if (!tmpList.isEmpty())
+        {
+            destDirMissingfiles.append(m_qlCopyList->at(iStruct)->Destdir);
+            missingfiles.append(QStringList(tmpList));
+        }
+
+    }
+    if (!missingfiles.isEmpty())
+    {
+        m_pbWarningButton->show();
+        m_qtWarningTimer->start(500);
+        if (openWindow)
+        {
+            missingFiles *missingFilesDialog = new missingFiles(this,missingfiles,destDirMissingfiles);
+            missingFilesDialog->exec();
+            deletefiles = missingFilesDialog->getDeleteFiles();
+            for (int iDir=0;iDir<destDirMissingfiles.size();iDir++)
+            {
+                for (int iStruct=0;iStruct<m_qlCopyList->size();iStruct++)
+                {
+                    if (m_qlCopyList->at(iStruct)->Destdir.path()==destDirMissingfiles.at(iDir).path())
+                    {
+                        for (int iFile=0;iFile<m_qlCopyList->at(iStruct)->FileList.size();iFile++)
+                        {
+                            for (int iDelFile=0;iDelFile<deletefiles.at(iDir).size();iDelFile++)
+                            {
+                                if (deletefiles.at(iDir).at(iDelFile)==m_qlCopyList->at(iStruct)->FileList.at(iFile))
+                                {
+                                    tmpList = m_qlCopyList->at(iStruct)->FileList;
+                                    tmpList.removeAt(iFile);
+                                    m_qlCopyList->at(iStruct)->FileList = tmpList;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            delete missingFilesDialog;
+
+            missingFile(false);
+        }
+    }
+    else
+    {
+         m_qtWarningTimer->stop();
+         m_pbWarningButton->hide();
+    }
+}
+
+void MainWindow::warningSlot()
+{
+    missingFile(true);
+}
+
+void MainWindow::warningTimerSlot()
+{
+    static bool iconRed=false;
+
+    if (iconRed)
+    {
+        m_pbWarningButton->setIconCustom(":/Icon/warning.png");
+    }
+    else
+    {
+        m_pbWarningButton->setIconCustom(":/Icon/warningRed.png");
+    }
+    iconRed=!iconRed;
 }

@@ -15,5 +15,11 @@
         <file>Icon/success16.png</file>
         <file>Icon/settings.png</file>
         <file>Icon/stop.png</file>
+        <file>Icon/warning.png</file>
+        <file>Icon/warningRed.png</file>
+        <file>Icon/left-arrow.png</file>
+        <file>Icon/right-arrow.png</file>
+        <file>Icon/edit.png</file>
+        <file>Icon/star.png</file>
     </qresource>
 </RCC>

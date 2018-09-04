@@ -26,7 +26,7 @@ class PopUpNewDestination : public QDialog
 {
     Q_OBJECT
 public:
-    explicit PopUpNewDestination(QWidget *parent = 0,QDir dir=QDir(NULLDIR),bool createCopy=false);
+    explicit PopUpNewDestination(QWidget *parent = 0,QDir dir=QDir(NULLDIR),QDir lastDir=QDir(NULLDIR),bool createCopy=false,bool newDest=true);
     QDir getQDir();
     bool getCreateCopy();
 
@@ -40,6 +40,7 @@ private:
     QCheckBox* m_qcbCreateCopy;
     QDialogButtonBox* mqdbButtons;
     QDir m_qdCurrentFolder;
+    QDir m_qdLastFolder;
     bool m_bNew;
 
     void NewFolder(bool setText=false);

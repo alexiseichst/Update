@@ -18,6 +18,7 @@
 #include "pushbutton.h"
 #include "define.h"
 #include "threadcopy.h"
+#include "copyinfomation.h"
 
 class FileCopyItem : public QWidget
 {
@@ -45,6 +46,7 @@ private:
     QString m_qsCopyResult;
     ThreadCopy* m_tcThreadCopy;
     bool m_repeatClicked;
+    bool m_repeatOk;
 
     void deleteDll();
 

@@ -4,7 +4,7 @@ FileCopyItem::FileCopyItem(QWidget *parent,QStringList* files,QDir filesDir,QDir
 {
     QFont font;
 
-    m_qhblMainLayout = new QHBoxLayout(this);
+    m_qhblMainLayout = new QHBoxLayout();
     this->setLayout(m_qhblMainLayout);
 
     m_qvbLeft= new QVBoxLayout();
@@ -31,6 +31,7 @@ FileCopyItem::FileCopyItem(QWidget *parent,QStringList* files,QDir filesDir,QDir
     m_pbState->setMinimumSize(17,17);
     m_pbState->setIconSize(QSize(17,17));
     m_qvbRight->addWidget(m_pbState);
+    connect(m_pbState,SIGNAL(clicked(bool)),this,SLOT(repeatSlot()));
 
     for (int iFile=0;iFile<files->size();iFile++)
         m_qslFiles.append(files->at(iFile));
@@ -42,6 +43,7 @@ FileCopyItem::FileCopyItem(QWidget *parent,QStringList* files,QDir filesDir,QDir
 
     m_tcThreadCopy=nullptr;
     m_repeatClicked=false;
+    m_repeatOk=false;
 }
 
 FileCopyItem::~FileCopyItem()
@@ -54,25 +56,27 @@ void FileCopyItem::endSlot(QString errorReport)
     if (errorReport.isEmpty())
     {
         m_pbState->setIconCustom(":/Icon/success.png");
-        m_pbState->setToolTip("Success");
-        m_pbState->setClickable(false);
-        disconnect(m_pbState,SIGNAL(clicked(bool)),this,SLOT(repeatSlot()));
+        m_pbState->setToolTip("Terminé");
+        m_repeatOk=false;
+        //deleteDll();
     }
     else
     {
         m_pbState->setIconCustom(":/Icon/repeat.png");
-        m_pbState->setToolTip("Repeat");
-        m_pbState->setClickable(true);
-        connect(m_pbState,SIGNAL(clicked(bool)),this,SLOT(repeatSlot()));
+        m_pbState->setToolTip("Recommencer");
+        m_repeatOk=true;
+
     }
     m_qsCopyResult = errorReport;
     m_pbInfo->setToolTip("Informations");
     m_pbInfo->setIconCustom(":/Icon/info.png");
 
-    if (errorReport=="Stopped" || m_repeatClicked)
+    if (errorReport=="Stoppé" || m_repeatClicked)
         emit copyFinished(false,false);
     else
         emit copyFinished(false,true);
+
+    m_repeatClicked=false;
 }
 
 void FileCopyItem::startCopy()
@@ -95,9 +99,8 @@ void FileCopyItem::startCopy()
 
 void FileCopyItem::deleteDll()
 {
-    QString sourceFile = "";
+    bool deleteAll=true;
     QString destFile = "";
-    QString errorReport = "";
     QList<QProcess*> processList;
 
     for (int iFile=0;iFile<m_qslFiles.size();iFile++)
@@ -107,20 +110,37 @@ void FileCopyItem::deleteDll()
         {
             processList.append(new QProcess(this));
             processList.last()->start(destFile);
+            thread()->msleep(100);
         }
     }
-    for (int iFile=0;iFile<m_qslFiles.size();iFile++)
+
+    thread()->msleep(1000);
+    for (int iFile=0;iFile<processList.size();iFile++)
     {
-        destFile =  m_qdDest.path()+"/"+m_qslFiles.at(iFile);
-        if (destFile.mid(destFile.size()-3) == "dll")
+        if (processList.at(iFile)->state()!=QProcess::Running)
         {
-            QFile::remove(destFile);
+            deleteAll=false;
         }
     }
+    thread()->msleep(1000);
+
+    if (deleteAll)
+    {
+        for (int iFile=0;iFile<m_qslFiles.size();iFile++)
+        {
+            destFile =  m_qdDest.path()+"/"+m_qslFiles.at(iFile);
+            if (destFile.mid(destFile.size()-3) == "dll")
+            {
+                QFile::remove(destFile);
+            }
+        }
+    }
+
     for (int iFile=0;iFile<processList.size();iFile++)
     {
         processList.at(iFile)->kill();
     }
+
     processList.clear();
 }
 
@@ -135,8 +155,17 @@ void FileCopyItem::reset()
 
 void FileCopyItem::repeatSlot()
 {
-    m_repeatClicked=true;
-    startCopy();
+    if (m_repeatOk)
+    {
+        m_repeatClicked=true;
+        startCopy();
+    }
+    else
+    {
+        m_pbState->setIconCustom(":/Icon/repeat.png");
+        m_pbState->setToolTip("Recommencer");
+        m_repeatOk=true;
+    }
 }
 
 bool FileCopyItem::getSuccess()
@@ -164,24 +193,13 @@ void FileCopyItem::stopCopy()
     }
     else
     {
-       endSlot("Stopped");
+       endSlot("Stoppé");
     }
+
 }
 
 void FileCopyItem::infoSlot()
 {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Information");
-    msgBox.setIcon(QMessageBox::Information);
-
-    if (m_qsCopyResult.isEmpty())
-    {
-        msgBox.setText("All files are copied                                           ");       
-    }
-    else
-    {
-        msgBox.setText("Error at the time of the copying files                         ");
-        msgBox.setDetailedText(m_qsCopyResult);
-    }
-    msgBox.exec();
+    CopyInfomation information(this,m_qsCopyResult);
+    information.exec();
 }

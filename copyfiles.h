@@ -31,6 +31,7 @@ private:
     QThread* m_qtCopyThread;
     int m_iCopyIndex;
     bool m_bRepeat;
+    bool m_bSuccess;
 
     void globalState();
 

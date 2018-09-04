@@ -7,13 +7,14 @@ SettingsView::SettingsView(QWidget *parent) : QDialog(parent)
     QPixmap pixmap(":/Icon/settings.png");
     QIcon icon(pixmap);
 
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setModal(true);
     setMaximumSize(300,500);
     setMinimumSize(300,500);
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);
     setPalette(pal);
-    setWindowTitle("Settings");
+    setWindowTitle("Pramètres");
     setWindowIcon(icon);
 
     m_qvblMainLayout = new QVBoxLayout(this);

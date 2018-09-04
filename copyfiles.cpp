@@ -7,19 +7,21 @@ CopyFiles::CopyFiles(QWidget *parent) : QDialog(parent)
     QIcon icon(pixmap);
 
     m_bRepeat=false;
+    m_bSuccess=false;
     m_iCopyIndex=-1;
     m_qlCopyList=nullptr;
     m_qdFilestDir = QDir(NULLDIR);
 
     m_qlWidgetItem = new QList<FileCopyItem*>;
 
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setModal(true);
     setMaximumSize(300,400);
     setMinimumSize(300,400);
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);
     setPalette(pal);
-    setWindowTitle("Files copy");
+    setWindowTitle("Copie des fichiers");
     setWindowIcon(icon);
 
     m_qvblMainLayout = new QVBoxLayout(this);
@@ -41,6 +43,7 @@ CopyFiles::CopyFiles(QWidget *parent) : QDialog(parent)
 
 void CopyFiles::setStructList(QList<COPYSTRUCT*>* list)
 {
+    QListWidgetItem* item=NULL;
     m_qlCopyList = list;
 
     if (m_qdFilestDir.exists() && m_qlCopyList && m_qlCopyList->size()>0)
@@ -49,9 +52,14 @@ void CopyFiles::setStructList(QList<COPYSTRUCT*>* list)
         {
             m_qlWidgetItem->append(new FileCopyItem(nullptr,&m_qlCopyList->at(iCopyList)->FileList,m_qdFilestDir,m_qlCopyList->at(iCopyList)->Destdir,m_qlCopyList->at(iCopyList)->createCopy));
             m_qlwFilesCopyList->addItem("");
-            m_qlwFilesCopyList->setItemWidget(m_qlwFilesCopyList->item(m_qlWidgetItem->size()-1),m_qlWidgetItem->last());
-            m_qlwFilesCopyList->item(m_qlWidgetItem->size()-1)->setSizeHint(QSize(m_qlwFilesCopyList->item(m_qlWidgetItem->size()-1)->sizeHint().width(), 50));
+            item = m_qlwFilesCopyList->item(m_qlWidgetItem->size()-1);
+            item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+
+            m_qlwFilesCopyList->setItemWidget(item,m_qlWidgetItem->last());
             connect(m_qlWidgetItem->last(),SIGNAL(copyFinished(bool,bool)),SLOT(startCopySlot(bool,bool)));
+
+            item->setSizeHint(QSize(m_qlwFilesCopyList->item(m_qlWidgetItem->size()-1)->sizeHint().width(), 50));
+            item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
         }
 
         for (int iWidjet=0;iWidjet<m_qlWidgetItem->size();iWidjet++)
@@ -72,13 +80,16 @@ void CopyFiles::globalState()
     {
         if(!m_qlWidgetItem->at(iCopyIndex)->getSuccess())
         {
+            m_bRepeat=true;
+            m_pbStopButton->setIconCustom(":/Icon/repeat.png");
+            m_pbStopButton->setToolTip("Recommencer");
             return;
         }
     }
+    m_bSuccess=true;
     m_pbStopButton->setClickable(false);
     m_pbStopButton->setIconCustom(":/Icon/success.png");
-    m_pbStopButton->setToolTip("Success");
-    disconnect(m_pbStopButton,SIGNAL(clicked(bool)),this,SLOT(stopRepeatCopySlot()));
+    m_pbStopButton->setToolTip("Terminé");
 }
 
 void CopyFiles::startCopySlot(bool first,bool continueCopy)
@@ -114,13 +125,13 @@ void CopyFiles::startCopySlot(bool first,bool continueCopy)
 
 void CopyFiles::stopRepeatCopySlot()
 {
-    if (!m_bRepeat)
+    if (!m_bRepeat  && !m_bSuccess)
     {
         m_qlWidgetItem->at(m_iCopyIndex)->stopCopy();
         m_pbStopButton->setIconCustom(":/Icon/repeat.png");
-        m_pbStopButton->setToolTip("Repeat");
+        m_pbStopButton->setToolTip("Recommencer");
     }
-    else
+    else if (m_bRepeat && !m_bSuccess)
     {
         for (int iCopyIndex=0;iCopyIndex<m_qlWidgetItem->size();iCopyIndex++)
             m_qlWidgetItem->at(iCopyIndex)->reset();
@@ -128,6 +139,12 @@ void CopyFiles::stopRepeatCopySlot()
         startCopySlot(true,true);
         m_pbStopButton->setIconCustom(":/Icon/stop.png");
         m_pbStopButton->setToolTip("Stop");
+    }
+    else
+    {
+        m_pbStopButton->setIconCustom(":/Icon/repeat.png");
+        m_pbStopButton->setToolTip("Terminé");
+        m_bSuccess=false;
     }
     m_bRepeat=!m_bRepeat;
 }

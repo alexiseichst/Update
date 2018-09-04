@@ -14,7 +14,7 @@ LoadFileWidget::LoadFileWidget(QWidget *parent,QString filesDir) : QWidget(paren
     m_qvblMainLayout->addLayout(m_qvblPathLayout);
 
     m_qlValidFolderPath = new PushButton(this,":/Icon/error.png",false);
-    m_qlValidFolderPath->setToolTip("Error");
+    m_qlValidFolderPath->setToolTip("Erreur");
     m_qvblPathLayout->addWidget(m_qlValidFolderPath);
     m_qlValidFolderPath->setMinimumSize(22,22);
     m_qlValidFolderPath->setIconSize(QSize(22,22));
@@ -26,7 +26,7 @@ LoadFileWidget::LoadFileWidget(QWidget *parent,QString filesDir) : QWidget(paren
     connect(m_qleFolderPath,SIGNAL(textChanged(QString)),this,SLOT(LineFolderPathReturnSlot()));
 
     m_qpbOpenFolerPath = new PushButton(this,":/Icon/folder.png");
-    m_qpbOpenFolerPath->setToolTip("Open new folder");
+    m_qpbOpenFolerPath->setToolTip("Ouvrir un nouveau dossier");
     m_qvblPathLayout->addWidget(m_qpbOpenFolerPath);
     connect(m_qpbOpenFolerPath,SIGNAL(clicked(bool)),this,SLOT(OpenFolerPathClickedSlot()));
     m_qpbOpenFolerPath->setMinimumSize(22,22);
@@ -44,14 +44,25 @@ LoadFileWidget::LoadFileWidget(QWidget *parent,QString filesDir) : QWidget(paren
 
 void LoadFileWidget::OpenFolerPathClickedSlot()
 {
-    QString dir = "";
+    QDir dir(m_qdCurrentFolder);
+    QString path="/";
 
-    dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),"/");
-
-    if (dir != "")
+    if (dir.exists())
     {
-        m_qdCurrentFolder.setPath(dir);
-        NewDir(dir);
+        dir.cdUp();
+        if (dir.exists())
+        {
+            path = dir.path();
+        }
+    }
+
+    path = QFileDialog::getExistingDirectory(this, tr("Ouvrir un dossier"),path);
+    m_qsLastPath=path;
+
+    if (path != "")
+    {
+        m_qdCurrentFolder.setPath(path);
+        NewDir(path);
     }
 }
 
@@ -68,7 +79,10 @@ void LoadFileWidget::NewDir(QString path)
     {
         m_qdCurrentFolder.setPath(path);
     }
-
+    else
+    {
+        m_qdCurrentFolder.setPath(NULLDIR);
+    }
     NewFolder();
 }
 
@@ -76,12 +90,13 @@ void LoadFileWidget::NewFolder()
 {
      QStringList tmpList;
      QList<QIcon> iconList;
+     bool firstDll=true;
 
      m_qlValidFolderPath->setIconCustom(":/Icon/error.png");
-     m_qlValidFolderPath->setToolTip("Error");
+     m_qlValidFolderPath->setToolTip("Erreur");
      m_flFileList->emptyList();
 
-    if (m_qdCurrentFolder.path()==NULLDIR)
+    if (m_qdCurrentFolder.path()==NULLDIR || !m_qdCurrentFolder.exists())
         return;
 
     disconnect(m_qleFolderPath,SIGNAL(textChanged(QString)),this,SLOT(LineFolderPathReturnSlot()));
@@ -107,6 +122,12 @@ void LoadFileWidget::NewFolder()
         }
         else
         {
+            if (firstDll)
+            {
+                m_qslFileList->append("Toutes les dll");
+                iconList.append(QIcon(":/Icon/star.png"));
+                firstDll=false;
+            }
             m_qslFileList->append(fileName);
             iconList.append(getIconApp(fileName));
         }
@@ -114,7 +135,7 @@ void LoadFileWidget::NewFolder()
 
     m_flFileList->setList(*m_qslFileList,iconList);
     m_qlValidFolderPath->setIconCustom(":/Icon/success.png");
-    m_qlValidFolderPath->setToolTip("Success");
+    m_qlValidFolderPath->setToolTip("Valide");
 
 }
 
@@ -135,7 +156,10 @@ QIcon LoadFileWidget::getIconApp(QString fileName)
         convertedName[filePath.length()] = '\0';
         hInstance = ::GetModuleHandle(NULL);
         Icon = ::ExtractIcon(hInstance, convertedName, 0);
-        pixmap = QtWin::fromHICON(Icon);
+
+        if (Icon)
+            pixmap = QtWin::fromHICON(Icon);
+
         if (pixmap.isNull())
             returnedIcon = QIcon(":/Icon/exe.png");
         else
@@ -169,4 +193,9 @@ QDir LoadFileWidget::getDir()
 void LoadFileWidget::newFilesListSlot()
 {
     emit newFilesListSignal();
+}
+
+QStringList LoadFileWidget::getFilesList()
+{
+    return m_flFileList->getFilesList();
 }

@@ -24,12 +24,12 @@ DestinationItem::DestinationItem(QWidget *parent,QDir dir,bool createCopy) : QWi
     m_qvblMainLayout->addLayout(m_qvblButtonLayout);
 
     m_pbEdit = new PushButton(this,":/Icon/more.png");
-    m_pbEdit->setToolTip("Edit");
+    m_pbEdit->setToolTip("Editer");
     m_qvblButtonLayout->addWidget(m_pbEdit,0,Qt::AlignRight);
     connect(m_pbEdit,SIGNAL(clicked(bool)),this,SLOT(EditClicked()));
 
     m_pbDel = new PushButton(this,":/Icon/garbage.png");
-    m_pbDel->setToolTip("Delete");
+    m_pbDel->setToolTip("Supprimer");
     m_qvblButtonLayout->addWidget(m_pbDel,0,Qt::AlignRight);
     connect(m_pbDel,SIGNAL(clicked(bool)),this,SLOT(DelClicked()));
 

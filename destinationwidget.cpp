@@ -9,10 +9,10 @@ DestinationWidget::DestinationWidget(QWidget *parent,QList<DESTSELECT> list) : Q
     m_qvblMainLayout->addLayout(m_qvblTopLayout);
 
     m_pbAddButton = new PushButton(this,":/Icon/add.png");
-    m_pbAddButton->setToolTip("Add");
+    m_pbAddButton->setToolTip("Ajouter");
     m_qvblTopLayout->addWidget(m_pbAddButton);
     connect(m_pbAddButton,SIGNAL(clicked(bool)),this,SLOT(AddButtonClicked()));
-    m_pbAddButton->setMinimumSize(22,22);
+    m_pbAddButton->setMaximumSize(22,22);
     m_pbAddButton->setIconSize(QSize(22,22));
 
     m_dlDestinationList = new DestinationList(this);

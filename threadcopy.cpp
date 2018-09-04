@@ -14,12 +14,13 @@ void ThreadCopy::run()
     bool error=false;
     int cptFiles=0;
     QStringList tmpCopyList;
+    QFile file;
 
     tmpCopyList.clear();
 
     if (m_bStop)
     {
-        emit endSignal("Stopped");
+        emit endSignal("Stoppé");
         return;
     }
 
@@ -59,7 +60,7 @@ void ThreadCopy::run()
                 tmpDir.setPath(tmp);
 
                 if (cpt>=36000)
-                    errorReport.append("Impossible to create the copy folder");
+                    errorReport.append("Impossible de créer la sauvegarde");
             }
             destCopyDir.setPath(tmp);
         }
@@ -76,7 +77,7 @@ void ThreadCopy::run()
             tmp = tmp.mid(0,pos);
             tmpDir.setPath(tmp);
             if(!tmpDir.mkdir(destCopyDir.dirName()))
-                errorReport.append("Impossible to create the copy folder");
+                errorReport.append("Impossible de créer la sauvegarde");
         }
 
         if (errorReport.isEmpty())
@@ -88,11 +89,14 @@ void ThreadCopy::run()
             {
                 sourceFile = m_qdDest.path()+"/"+tmpCopyList.at(ifile);
                 destCopyFile = destCopyDir.path()+"/"+tmpCopyList.at(ifile);
-                if (!QFile::copy(sourceFile,destCopyFile))
+                file.setFileName(sourceFile);
+                if (!file.copy(destCopyFile))
                 {
                     errorReport.append("Source: "+sourceFile);
                     errorReport.append("\n");
                     errorReport.append("Dest: "+destCopyFile);
+                    errorReport.append("\n");
+                    errorReport.append(file.errorString());
                     errorReport.append("\n\n");
                 }
                 else
@@ -102,7 +106,7 @@ void ThreadCopy::run()
                 }
                 if (m_bStop)
                 {
-                    emit endSignal("Stopped");
+                    emit endSignal("Stoppé");
                     return;
                 }
             }
@@ -111,7 +115,7 @@ void ThreadCopy::run()
 
     if (m_bStop)
     {
-        emit endSignal("Stopped");
+        emit endSignal("Stoppé");
         return;
     }
 
@@ -124,14 +128,24 @@ void ThreadCopy::run()
                 error=false;
                 sourceFile = m_qdFilesDir.path()+"/"+m_qslFiles.at(iFile);
                 destFile =  m_qdDest.path()+"/"+m_qslFiles.at(iFile);
+                file.setFileName(sourceFile);
 
-                if (QFile::exists(sourceFile))
+                if (file.exists(sourceFile))
                 {
-                    if (QFile::exists(destFile))
-                        QFile::remove(destFile);
+                    file.setFileName(destFile);
+                    if (file.exists())
+                        file.remove();
 
-                    if (!QFile::copy(sourceFile,destFile))
+                    if (!file.exists())
+                    {
+                        file.setFileName(sourceFile);
+                        if (!file.copy(destFile))
+                            error=true;
+                    }
+                    else
+                    {
                         error=true;
+                    }
                 }
                 else
                 {
@@ -142,6 +156,8 @@ void ThreadCopy::run()
                     errorReport.append("Source: "+sourceFile);
                     errorReport.append("\n");
                     errorReport.append("Dest: "+destFile);
+                    errorReport.append("\n");
+                    errorReport.append(file.errorString());
                     errorReport.append("\n\n");
                 }
                 else
@@ -151,14 +167,14 @@ void ThreadCopy::run()
                 }
                 if (m_bStop)
                 {
-                    emit endSignal("Stopped");
+                    emit endSignal("Stoppé");
                     return;
                 }
             }
         }
         else
         {
-            errorReport.append("Impossible to find the destination folder : "+m_qdDest.path());
+            errorReport.append("Impossible de trouver le repertoire : "+m_qdDest.path());
         }
     }
     emit endSignal(errorReport);

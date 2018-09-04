@@ -24,6 +24,7 @@ public:
     void setList(QStringList list,QList<QIcon> iconList);
     void emptyList();
     void setSelected(QStringList list);
+    QStringList getFilesList();
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
@@ -34,8 +35,10 @@ protected:
 
 private:
    bool m_bShiftPressed;
+   int m_iAllDll;
 
    void setCheckedCheckBox(int index,bool state);
+   void selectAllDll();
 
 private slots:
     void sendSelectedFilesSlot(QString name);

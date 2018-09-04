@@ -21,6 +21,7 @@ public:
     explicit LoadFileWidget(QWidget *parent = 0,QString filesDir="");
     void setStringList(QStringList list);
     QDir getDir();
+    QStringList getFilesList();
 
 private:
     QVBoxLayout* m_qvblMainLayout;
@@ -31,6 +32,7 @@ private:
     FileList* m_flFileList;
     QDir m_qdCurrentFolder;
     QStringList* m_qslFileList;
+    QString m_qsLastPath;
 
     void NewFolder();
     void NewDir(QString path);

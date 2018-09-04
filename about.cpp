@@ -7,16 +7,17 @@ About::About(QWidget *parent) : QDialog(parent)
     QPixmap pixmap(":/Icon/info.png");
     QIcon icon(pixmap);
 
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setModal(true);
     setMaximumSize(200,100);
     setMinimumSize(200,100);
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);
     setPalette(pal);
-    setWindowTitle("About");
+    setWindowTitle("A propos");
     setWindowIcon(icon);
 
-    m_qvnVersion = QVersionNumber(1, 2, 0);
+    m_qvnVersion = QVersionNumber(1, 3, 1);
 
     m_qvblMainLayout = new QVBoxLayout(this);
     m_qvblMainLayout->setAlignment(Qt::AlignCenter);

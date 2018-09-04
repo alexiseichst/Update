@@ -1,23 +1,24 @@
 #include "popupnewdestination.h"
 
-PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,bool createCopy) : QDialog(parent)
+PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,QDir lastDir,bool createCopy,bool newDest) : QDialog(parent)
 {   
     QFont font;
     QPalette pal = palette();
-    QPixmap pixmap(":/Icon/add.png");
+    QPixmap pixmap(newDest?":/Icon/add.png":":/Icon/edit.png");
     QIcon icon(pixmap);
 
-
     m_qdCurrentFolder.setPath(NULLDIR);
+    m_qdLastFolder = lastDir;
     m_bNew=true;
 
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setModal(true);
     setMaximumSize(300,250);
     setMinimumSize(300,250);
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);
     setPalette(pal);
-    setWindowTitle("New Folder");
+    setWindowTitle(newDest?"Nouveau dossier":"Editer le dossier");
     setWindowIcon(icon);
 
     m_qvblMainLayout = new QVBoxLayout(this);
@@ -37,7 +38,7 @@ PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,bool createCop
     m_qvblMainLayout->addLayout(m_qvblPathLayout);
 
     m_qlValidFolderPath = new PushButton(this,":/Icon/error.png",false);
-    m_qlValidFolderPath->setToolTip("Error");
+    m_qlValidFolderPath->setToolTip("Erreur");
     m_qlValidFolderPath->setMinimumSize(22,22);
     m_qlValidFolderPath->setIconSize(QSize(22,22));
     m_qvblPathLayout->addWidget(m_qlValidFolderPath);
@@ -49,15 +50,15 @@ PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,bool createCop
     connect(m_qleFolderPath,SIGNAL(textChanged(QString)),this,SLOT(LineFolderPathChangeSlot()));
 
     m_qpbOpenFolerPath = new PushButton(this,":/Icon/folder.png");
-    m_qpbOpenFolerPath->setToolTip("Open new folder");
+    m_qpbOpenFolerPath->setToolTip("Ouvrir un nouveau dossier");
     connect(m_qpbOpenFolerPath,SIGNAL(clicked(bool)),this,SLOT(OpenFolerPathClickedSlot()));
     m_qpbOpenFolerPath->setMinimumSize(22,22);
     m_qpbOpenFolerPath->setIconSize(QSize(22,22));
     m_qvblPathLayout->addWidget(m_qpbOpenFolerPath);
 
     m_qvblMainLayout->addSpacing(20);
-    m_qcbCreateCopy = new QCheckBox("Create copy with date",this);
-    m_qcbCreateCopy->setChecked(createCopy);
+    m_qcbCreateCopy = new QCheckBox("Créer une copie avec la date",this);
+    m_qcbCreateCopy->setChecked(true);
     m_qvblMainLayout->addWidget(m_qcbCreateCopy);
 
     mqdbButtons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,this);
@@ -80,9 +81,30 @@ PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,bool createCop
 
 void PopUpNewDestination::OpenFolerPathClickedSlot()
 {
-    QString dir = "";
+    QString dir = "/";
+    QDir tmp = m_qdCurrentFolder;
 
-    dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),"/");
+    if (tmp.exists())
+    {
+        tmp.cdUp();
+        if (tmp.exists())
+        {
+            dir=tmp.path();
+        }
+    }
+    else
+    {
+        tmp = m_qdLastFolder;
+        if (tmp.exists())
+        {
+            tmp.cdUp();
+            if (tmp.exists())
+            {
+                dir=tmp.path();
+            }
+        }
+    }
+    dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),dir);
 
     if (dir!="")
     {
@@ -95,7 +117,7 @@ void PopUpNewDestination::NewDir(QString path)
 {
     QDir dir(path);
 
-    if (dir.exists() && path!=NULLDIR)
+    if (dir.exists() && path!=NULLDIR && path!="")
     {
         m_qdCurrentFolder.setPath(path);
     }
@@ -114,7 +136,7 @@ void PopUpNewDestination::NewFolder(bool setText)
 {
 
      m_qlValidFolderPath->setIconCustom(":/Icon/error.png");
-     m_qlValidFolderPath->setToolTip("Error");
+     m_qlValidFolderPath->setToolTip("Erreur");
      mqdbButtons->button(QDialogButtonBox::Ok)->setEnabled(false);
 
     if (m_qdCurrentFolder.path()==NULLDIR)
@@ -125,7 +147,7 @@ void PopUpNewDestination::NewFolder(bool setText)
 
     m_qlName->setText(m_qdCurrentFolder.dirName());
     m_qlValidFolderPath->setIconCustom(":/Icon/success.png");
-    m_qlValidFolderPath->setToolTip("Success");
+    m_qlValidFolderPath->setToolTip("Valide");
     mqdbButtons->button(QDialogButtonBox::Ok)->setEnabled(true);
 
 }

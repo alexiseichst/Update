@@ -7,7 +7,7 @@ DestinationList::DestinationList(QWidget *parent) : QListWidget(parent)
 }
 
 void DestinationList::addNewDir(QDir dir,bool createCopy)
-{
+{ 
     m_qlDestItems->append(new DestinationItem(this,dir,createCopy));
     addItem("");
     connect(m_qlDestItems->last(),SIGNAL(EditClickedSignal(QString)),this,SLOT(EditItemClicked(QString)));
@@ -30,6 +30,7 @@ void DestinationList::changeInfos(QDir dir,bool createCopy,int index)
 void DestinationList::AddItemPopUp(int index)
 {
     QDir dir = QDir(NULLDIR);
+    QDir lastdir = QDir(NULLDIR);
     bool createCopy=false;
     PopUpNewDestination* NewDestWindows = nullptr;
 
@@ -38,7 +39,14 @@ void DestinationList::AddItemPopUp(int index)
         dir = m_qlDestItems->at(index)->getDir();
         createCopy = m_qlDestItems->at(index)->getCreateCopy();
     }
-    NewDestWindows = new PopUpNewDestination(this,dir,createCopy);
+    else
+    {
+        if (m_qlDestItems->size()>0)
+        {
+            lastdir = m_qlDestItems->at(m_qlDestItems->size()-1)->getDir();
+        }
+    }
+    NewDestWindows = new PopUpNewDestination(this,dir,lastdir,createCopy,index==-1?true:false);
     NewDestWindows->exec();
 
     if (NewDestWindows->getQDir().path() != NULLDIR)
