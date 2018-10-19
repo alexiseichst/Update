@@ -27,6 +27,7 @@ public:
     void AddItemPopUp(int index);
     QList<DESTSELECT> getSelectedList();
     void addNewIniDir(QDir dir,qlonglong id,bool createCopy);
+    void setCopyOk(int index,bool state);
 
 private:
     QList<DestinationItem*>* m_qlDestItems;

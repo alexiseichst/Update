@@ -7,6 +7,8 @@ Settings::Settings(QObject *parent) : QObject(parent)
 
 void Settings::save(QRect *windowsRect,QList<COPYSTRUCT*>* list,QString filesDir)
 {
+    addLog("Sauvegarde dans le .ini");
+
     m_qsSettings->clear();
 
     m_qsSettings->setValue("General/WindowRectX",windowsRect->x());
@@ -34,6 +36,8 @@ void Settings::save(QRect *windowsRect,QList<COPYSTRUCT*>* list,QString filesDir
 
 void Settings::load(QRect *windowsRect,QList<COPYSTRUCT*>* list,QString* filesDir)
 {
+    addLog("Lecture du .ini");
+
     int nbDest=0;
     int nbFile=0;
 

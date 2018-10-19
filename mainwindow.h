@@ -6,6 +6,7 @@
 #include <QList>
 #include <QString>
 #include <QTimer>
+#include <QKeyEvent>
 
 #include "loadfilewidget.h"
 #include "destinationwidget.h"
@@ -14,8 +15,9 @@
 #include "copyfiles.h"
 #include "define.h"
 #include "about.h"
-#include "settingsView.h"
+#include "preferences.h"
 #include "missingfiles.h"
+#include "console.h"
 
 namespace Ui {
 class MainWindow;
@@ -43,24 +45,34 @@ private:
     QVBoxLayout* m_qhblCenterLayout;
     PushButton* m_pbPlayButton;
     PushButton* m_pbAboutButton;
-    PushButton* m_pbSettingsButton;
+    PushButton* m_pbPreferenceButton;
     PushButton* m_pbWarningButton;
     QTimer* m_qtWarningTimer;
+    QTimer* m_qtCheckTimer;
+    QList<PREFSTRUCT*> *m_qlPrefList;
+
+    bool m_Key_P;
+    bool m_Key_Control;
+    bool m_Key_A;
 
     void updateSelectedFiles();
     void validPlay();
     void missingFile(bool openWindow=false);
-    void preferences();
+    bool preferences(QDir dir);
+    void saveConf();
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
 
 private slots:
     void destinationListChange(QList<DESTSELECT> list);
     void newSelectedFilesSlot(QStringList list);
     void playSlot();
+    void preferenceSlot();
     void newFilesListSlot();
     void aboutSlot();
-    void settingsSlot();
     void warningSlot();
     void warningTimerSlot();
+    void checkTimerSlot();
 };
 
 #endif // MAINWINDOW_H

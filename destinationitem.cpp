@@ -10,15 +10,24 @@ DestinationItem::DestinationItem(QWidget *parent,QDir dir,bool createCopy) : QWi
     this->setLayout(m_qvblMainLayout);
 
     m_qvblTextLayout = new QVBoxLayout(m_qvblMainLayout->widget());
+
+    m_qvblTextTopLayout = new QHBoxLayout(m_qvblTextLayout->widget());
+
+    m_pbValid = new PushButton(this,"");
+    m_qvblTextTopLayout->addWidget(m_pbValid,0,Qt::AlignLeft);
+
+    m_qvblTextTopLayout->setAlignment(Qt::AlignLeft);
+    m_qvblTextLayout->addLayout(m_qvblTextTopLayout);
     m_qvblMainLayout->addLayout(m_qvblTextLayout);
     m_qlName = new QLabel(this);
     font = m_qlName->font();
     font.setPointSize(10);
     font.setBold(true);
     m_qlName->setFont(font);
-    m_qvblTextLayout->addWidget(m_qlName);
+    m_qvblTextTopLayout->addWidget(m_qlName,0,Qt::AlignLeft);
+
     m_qlPath = new QLabel(this);
-     m_qvblTextLayout->addWidget(m_qlPath);
+    m_qvblTextLayout->addWidget(m_qlPath);
 
     m_qvblButtonLayout = new QVBoxLayout(m_qvblMainLayout->widget());
     m_qvblMainLayout->addLayout(m_qvblButtonLayout);
@@ -68,4 +77,27 @@ void DestinationItem::EditClicked()
 void DestinationItem::DelClicked()
 {
     emit DelClickedSignal(this->objectName());
+}
+
+void DestinationItem::setCopyOk(bool state)
+{
+    if (state)
+    {
+        if (pingPc(m_qdDir) && m_qdDir.exists())
+        {
+            m_pbValid->setIconCustom(":/Icon/success.png");
+            m_pbValid->setToolTip("Pret pour la copie");
+        }
+        else
+        {
+            m_pbValid->setIconCustom(":/Icon/error.png");
+            m_pbValid->setToolTip("Dossier introuvable");
+        }
+    }
+    else
+    {
+        m_pbValid->setIconCustom(":/Icon/error.png");
+        m_pbValid->setToolTip("Des exécutables sont ouverts");
+    }
+
 }

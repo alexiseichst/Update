@@ -20,14 +20,17 @@ public:
     QDir getDir();
     bool getCreateCopy();
     void setCreateCopy(bool createCopy);
+    void setCopyOk(bool state);
 
 private:
     QHBoxLayout* m_qvblMainLayout;
     QVBoxLayout* m_qvblButtonLayout;
+    QHBoxLayout* m_qvblTextTopLayout;
     QVBoxLayout* m_qvblTextLayout;
     QLabel* m_qlName;
     QLabel* m_qlPath;
     bool m_bCreateCopy;
+    PushButton* m_pbValid;
     PushButton* m_pbEdit;
     PushButton* m_pbDel;
     QDir m_qdDir;

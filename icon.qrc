@@ -21,5 +21,6 @@
         <file>Icon/right-arrow.png</file>
         <file>Icon/edit.png</file>
         <file>Icon/star.png</file>
+        <file>Icon/compose.png</file>
     </qresource>
 </RCC>

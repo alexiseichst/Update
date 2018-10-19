@@ -6,6 +6,9 @@
 #include <QDir>
 #include <QStringList>
 #include <QDate>
+#include <QProcess>
+
+#include "define.h"
 
 class ThreadCopy : public QThread
 {

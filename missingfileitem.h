@@ -7,6 +7,8 @@
 #include <QString>
 #include <QPushButton>
 
+#include "define.h"
+
 class MissingFileItem : public QWidget
 {
     Q_OBJECT

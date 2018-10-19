@@ -37,6 +37,7 @@ private:
     QDir m_qdFilesDir;
     bool m_bCreateCopy;
     QHBoxLayout* m_qhblMainLayout;
+    QHBoxLayout* m_qvbLeftTop;
     QVBoxLayout* m_qvbLeft;
     QVBoxLayout* m_qvbRight;
     QLabel* m_qlName;

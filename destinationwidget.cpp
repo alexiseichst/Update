@@ -35,3 +35,8 @@ void DestinationWidget::selectedChange()
     QList<DESTSELECT> signalList = m_dlDestinationList->getSelectedList();
     emit selectedListSignal(signalList);
 }
+
+void DestinationWidget::setCopyOk(int index,bool state)
+{
+    m_dlDestinationList->setCopyOk(index,state);
+}

@@ -23,8 +23,9 @@ public:
     QList<CheckBox*>* m_qlCheckBoxList;
     void setList(QStringList list,QList<QIcon> iconList);
     void emptyList();
-    void setSelected(QStringList list);
+    void setSelected(QStringList list,bool allExe=false,bool allDll=false);
     QStringList getFilesList();
+    void sendSelectedFiles();
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
@@ -39,6 +40,7 @@ private:
 
    void setCheckedCheckBox(int index,bool state);
    void selectAllDll();
+   bool selectFile(QString name1,QString name2,bool allExe,bool allDll);
 
 private slots:
     void sendSelectedFilesSlot(QString name);

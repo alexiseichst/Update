@@ -12,8 +12,17 @@ MainWindow::MainWindow(QWidget *parent) :
     QList<DESTSELECT> list;
     QString fileFolder = NULLDIR;
 
+    addLog("");
+    addLog("Lancement de l'application");
+
+    m_qlPrefList = new QList<PREFSTRUCT*>;
+    Preferences pref(m_qlPrefList,this,true);
+
     m_cpCurrentCopyStruct = nullptr;
     m_cfCopyFiles = nullptr;
+    m_Key_P=false;
+    m_Key_Control=false;
+    m_Key_A=false;
 
     m_qlCopyList = new QList<COPYSTRUCT*>;
     settings.load(&windowsRect,m_qlCopyList,&fileFolder);
@@ -47,13 +56,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_qhblCenterLayout->setSpacing(50);
 
-    m_pbSettingsButton =  new PushButton(this,":/Icon/settings.png");
-    m_pbSettingsButton->setToolTip("Paramètres");
-    m_pbSettingsButton->setMinimumSize(30,30);
-    m_pbSettingsButton->setIconSize(QSize(30,30));
-    connect(m_pbSettingsButton,SIGNAL(clicked(bool)),SLOT(settingsSlot()));
-    m_qhblCenterLayout->addWidget(m_pbSettingsButton);
-    m_pbSettingsButton->hide();
+    m_pbPreferenceButton = new PushButton(this,":/Icon/compose.png");
+    m_pbPreferenceButton->setToolTip("Selection automatique");
+    m_pbPreferenceButton->setMinimumSize(30,30);
+    m_pbPreferenceButton->setIconSize(QSize(30,30));
+    m_qhblCenterLayout->addWidget(m_pbPreferenceButton);
+    connect(m_pbPreferenceButton,SIGNAL(clicked(bool)),SLOT(preferenceSlot()));
 
     m_qhblCenterLayout->setSpacing(50);
 
@@ -74,6 +82,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_qtWarningTimer = new QTimer(m_pbWarningButton);
     connect(m_qtWarningTimer,SIGNAL(timeout()),SLOT(warningTimerSlot()));
 
+    m_qtCheckTimer = new QTimer(this);
+    connect(m_qtCheckTimer,SIGNAL(timeout()),SLOT(checkTimerSlot()));
+    //m_qtCheckTimer->start(1000);
+
     for (int iList=0;iList<m_qlCopyList->size();iList++)
     {
         DESTSELECT struc;
@@ -90,15 +102,70 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setGeometry(windowsRect);
     missingFile(false);
+
+    m_console = new Console(this);
+    m_console->hide();
+
+    addLog("Fin du chargement");
 }
 
 MainWindow::~MainWindow()
 {
+    saveConf();
+    delete m_qlCopyList;
+    delete ui;
+    addLog("Fermeture de l'application");
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_P:
+        m_Key_P=true;
+        break;
+    case Qt::Key_Control:
+        m_Key_Control=true;
+        break;
+    case Qt::Key_A:
+        m_Key_A=true;
+        break;
+    default:
+        break;
+    }
+
+    if (m_Key_P && m_Key_Control && m_Key_A)
+    {
+        m_Key_P=false;
+        m_Key_Control=false;
+        m_Key_A=false;
+        m_console->show();
+    }
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_P:
+        m_Key_P=false;
+        break;
+    case Qt::Key_Control:
+        m_Key_Control=false;
+        break;
+    case Qt::Key_A:
+        m_Key_A=false;
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::saveConf()
+{
     Settings settings;
     QRect rectArg = geometry();
     settings.save(&rectArg,m_qlCopyList,m_lfwLoadFileWidget->getDir().path());
-    delete m_qlCopyList;
-    delete ui;
 }
 
 void MainWindow::destinationListChange(QList<DESTSELECT> list)
@@ -106,6 +173,7 @@ void MainWindow::destinationListChange(QList<DESTSELECT> list)
     int selected = -1;
     COPYSTRUCT* ptCopyStruct=nullptr;
     bool inList=false;
+    bool update=true;
 
     m_cpCurrentCopyStruct = nullptr;
 
@@ -125,7 +193,7 @@ void MainWindow::destinationListChange(QList<DESTSELECT> list)
             m_qlCopyList->append(new COPYSTRUCT);
             ptCopyStruct = m_qlCopyList->last();
             ptCopyStruct->Id = list.at(iListArg).id;
-            preferences();
+            update = preferences(list.at(iListArg).dir);
         }
         else // Mise à jour
         {
@@ -155,13 +223,31 @@ void MainWindow::destinationListChange(QList<DESTSELECT> list)
             m_qlCopyList->removeAt(iList);
         }
     }
-    updateSelectedFiles();
+    if (update)
+    {
+        updateSelectedFiles();
+    }
+    else
+    {
+        m_lfwLoadFileWidget->sendSelectedFiles();
+    }
     validPlay();
 }
 
-void MainWindow::preferences()
+bool MainWindow::preferences(QDir dir)
 {
-    return;
+    for (int iStruct=0;iStruct<m_qlPrefList->size();iStruct++)
+    {
+        for (int iNames=0;iNames<m_qlPrefList->at(iStruct)->names.size();iNames++)
+        {
+            if (!QString::compare(dir.dirName(),m_qlPrefList->at(iStruct)->names.at(iNames),Qt::CaseInsensitive))
+            {
+                m_lfwLoadFileWidget->setStringList(m_qlPrefList->at(iStruct)->files,m_qlPrefList->at(iStruct)->allExe,m_qlPrefList->at(iStruct)->allDll);
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 void MainWindow::updateSelectedFiles()
@@ -180,6 +266,8 @@ void MainWindow::newSelectedFilesSlot(QStringList list)
 {
     bool add=false;
     bool inList=false;
+    bool bsaveConf=false;
+
     if (m_cpCurrentCopyStruct)
     {
         for (int iListArg=0;iListArg<list.size();iListArg++)
@@ -187,14 +275,17 @@ void MainWindow::newSelectedFilesSlot(QStringList list)
             add = true;
             for (int iList=0;iList<m_cpCurrentCopyStruct->FileList.size();iList++)
             {
-                if (m_cpCurrentCopyStruct->FileList.at(iList) == list.at(iListArg)) // Le dir de destination selectionné existe déja
+                if (m_cpCurrentCopyStruct->FileList.at(iList) == list.at(iListArg))
                 {
                     add = false;
                     break;
                 }
             }
             if (add)
+            {
+                bsaveConf=true;
                 m_cpCurrentCopyStruct->FileList.append(list.at(iListArg));
+            }
         }
         for (int iList=0;iList<m_cpCurrentCopyStruct->FileList.size();iList++)
         {
@@ -208,14 +299,25 @@ void MainWindow::newSelectedFilesSlot(QStringList list)
                 }
             }
             if (!inList)
+            {
                 m_cpCurrentCopyStruct->FileList.removeAt(iList);
+                bsaveConf=true;
+            }
         }
+    }
+    if (bsaveConf)
+    {
+        saveConf();
     }
     validPlay();
 }
 
 void MainWindow::playSlot()
 {
+    Settings settings;
+    QRect rectArg = geometry();
+    settings.save(&rectArg,m_qlCopyList,m_lfwLoadFileWidget->getDir().path());
+
     if (m_cfCopyFiles)
         delete m_cfCopyFiles;
     m_cfCopyFiles = new CopyFiles(this);
@@ -257,14 +359,14 @@ void MainWindow::aboutSlot()
     delete about;
 }
 
-void MainWindow::settingsSlot()
+void MainWindow::preferenceSlot()
 {
-    SettingsView* settings = nullptr;
+    Preferences* pref = nullptr;
 
-    settings = new SettingsView(this);
-    settings->exec();
+    pref = new Preferences(m_qlPrefList,this);
+    pref->exec();
 
-    delete settings;
+    delete pref;
 }
 
 void MainWindow::missingFile(bool openWindow)
@@ -364,4 +466,71 @@ void MainWindow::warningTimerSlot()
         m_pbWarningButton->setIconCustom(":/Icon/warningRed.png");
     }
     iconRed=!iconRed;
+}
+
+void MainWindow::checkTimerSlot()
+{
+    bool valid = true;
+    QString fileName="";
+    QFile file;
+    QProcess process;
+    QByteArray list;
+    QString stringList="";
+
+    process.setReadChannel(QProcess::StandardOutput);
+    process.setReadChannelMode(QProcess::MergedChannels);
+    process.start("wmic.exe /OUTPUT:STDOUT PROCESS get ExecutablePath");
+
+    process.waitForStarted(1000);
+    process.waitForFinished(1000);
+
+    list = process.readAll();
+    stringList = QString::fromStdString(list.toStdString());
+    if (stringList.isEmpty())
+    {
+        addLog("Impossible de trouver les applications executées");
+        m_qtCheckTimer->stop();
+        return;
+    }
+
+    for (int iStr=0;iStr<stringList.size();iStr++)
+    {
+        if (stringList.at(iStr)==92)
+        {
+            //stringList.replace()
+        }
+    }
+
+    for (int iStruct=0;iStruct<m_qlCopyList->size();iStruct++)
+    {
+        valid=true;
+        if (!pingPc(m_qlCopyList->at(iStruct)->Destdir) && !m_qlCopyList->at(iStruct)->Destdir.exists())
+        {
+            valid=false;
+        }
+        else
+        {
+            for (int iFileDest=0;iFileDest<m_qlCopyList->at(iStruct)->FileList.size();iFileDest++)
+            {
+                fileName = m_qlCopyList->at(iStruct)->FileList.at(iFileDest);
+                if (fileName.at(fileName.size()-3)=='e' &&
+                    fileName.at(fileName.size()-2)=='x' &&
+                    fileName.at(fileName.size()-1)=='e')
+                {
+                    file.setFileName(m_qlCopyList->at(iStruct)->Destdir.path()+"/"+fileName);
+                    if (file.exists())
+                    {
+                        valid=false;
+                        break;
+                    }
+                    else
+                    {
+                        if (file.isOpen())
+                            file.close();
+                    }
+                }
+            }
+        }
+        m_lfwDestinationWidget->setCopyOk(iStruct,valid);
+    }
 }

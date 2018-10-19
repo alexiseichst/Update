@@ -84,7 +84,7 @@ void PopUpNewDestination::OpenFolerPathClickedSlot()
     QString dir = "/";
     QDir tmp = m_qdCurrentFolder;
 
-    if (tmp.exists())
+    if (pingPc(tmp) && tmp.exists())
     {
         tmp.cdUp();
         if (tmp.exists())
@@ -95,7 +95,7 @@ void PopUpNewDestination::OpenFolerPathClickedSlot()
     else
     {
         tmp = m_qdLastFolder;
-        if (tmp.exists())
+        if (pingPc(tmp) && tmp.exists())
         {
             tmp.cdUp();
             if (tmp.exists())
@@ -117,7 +117,7 @@ void PopUpNewDestination::NewDir(QString path)
 {
     QDir dir(path);
 
-    if (dir.exists() && path!=NULLDIR && path!="")
+    if (pingPc(dir) && dir.exists() && path!=NULLDIR && path!="")
     {
         m_qdCurrentFolder.setPath(path);
     }
@@ -149,6 +149,8 @@ void PopUpNewDestination::NewFolder(bool setText)
     m_qlValidFolderPath->setIconCustom(":/Icon/success.png");
     m_qlValidFolderPath->setToolTip("Valide");
     mqdbButtons->button(QDialogButtonBox::Ok)->setEnabled(true);
+
+    addLog("Nouvelle destination : "+m_qdCurrentFolder.path());
 
 }
 

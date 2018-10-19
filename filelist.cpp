@@ -31,7 +31,6 @@ void FileList::setList(QStringList list,QList<QIcon> iconList)
 void FileList::sendSelectedFilesSlot(QString name)
 {
     QStringList signalList;
-    QString txt;
     int index = name.toInt();
     bool state =  m_qlCheckBoxList->at(index)->isChecked();
 
@@ -40,14 +39,6 @@ void FileList::sendSelectedFilesSlot(QString name)
         for(int iCheck=index+1;iCheck<m_qlCheckBoxList->size();iCheck++)
         {
             setCheckedCheckBox(iCheck,state);
-            signalList.clear();
-            for(int iCheck2=0;iCheck2<m_qlCheckBoxList->size();iCheck2++)
-            {
-                txt = m_qlCheckBoxList->at(iCheck2)->text();
-                if (m_qlCheckBoxList->at(iCheck2)->isChecked() && iCheck2!=m_iAllDll)
-                    signalList.append(txt);
-            }
-            emit sendSelectedFilesSlotSignal(signalList);
         }
     }
     else
@@ -55,6 +46,14 @@ void FileList::sendSelectedFilesSlot(QString name)
         setCheckedCheckBox(index,state);
         selectAllDll();
     }
+    sendSelectedFiles();
+}
+
+void FileList::sendSelectedFiles()
+{
+    QStringList signalList;
+    QString txt;
+
     signalList.clear();
     for(int iCheck=0;iCheck<m_qlCheckBoxList->size();iCheck++)
     {
@@ -66,7 +65,27 @@ void FileList::sendSelectedFilesSlot(QString name)
     emit sendSelectedFilesSlotSignal(signalList);
 }
 
-void FileList::setSelected(QStringList list)
+bool FileList::selectFile(QString name1,QString name2,bool allExe,bool allDll)
+{
+    if (!QString::compare(name1,name2))
+        return true;
+
+    if (name1.at(name1.size()-3)=='e' &&
+        name1.at(name1.size()-2)=='x' &&
+        name1.at(name1.size()-1)=='e' &&
+            allExe)
+        return true;
+
+    if (name1.at(name1.size()-3)=='d' &&
+        name1.at(name1.size()-2)=='l' &&
+        name1.at(name1.size()-1)=='l' &&
+            allDll)
+        return true;
+
+     return false;
+}
+
+void FileList::setSelected(QStringList list,bool allExe,bool allDll)
 {
     for(int iCheck=0;iCheck<m_qlCheckBoxList->size();iCheck++)
          setCheckedCheckBox(iCheck,false);
@@ -75,7 +94,7 @@ void FileList::setSelected(QStringList list)
     {
         for(int iCheck=0;iCheck<m_qlCheckBoxList->size();iCheck++)
         {
-            if (m_qlCheckBoxList->at(iCheck)->text() == list.at(iList))
+            if (selectFile(m_qlCheckBoxList->at(iCheck)->text(),list.at(iList),allExe,allDll))
             {
                 setCheckedCheckBox(iCheck,true);
             }

@@ -19,7 +19,8 @@ class LoadFileWidget : public QWidget
     Q_OBJECT
 public:
     explicit LoadFileWidget(QWidget *parent = 0,QString filesDir="");
-    void setStringList(QStringList list);
+    void setStringList(QStringList list,bool allExe=false,bool allDll=false);
+    void sendSelectedFiles();
     QDir getDir();
     QStringList getFilesList();
 

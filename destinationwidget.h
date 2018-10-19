@@ -16,6 +16,7 @@ class DestinationWidget : public QWidget
     Q_OBJECT
 public:
     explicit DestinationWidget(QWidget *parent = 0,QList<DESTSELECT> list = QList<DESTSELECT>());
+    void setCopyOk(int index,bool state);
 
 private:
     QVBoxLayout* m_qvblMainLayout;

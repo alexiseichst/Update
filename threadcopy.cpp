@@ -24,8 +24,22 @@ void ThreadCopy::run()
         return;
     }
 
-    if (m_qdFilesDir.exists() && m_qdDest.exists() && m_bCreateCopy)
+    if (pingPc(m_qdFilesDir))
     {
+        if (!pingPc(m_qdDest))
+        {
+             errorReport.append("Impossible d'acceder à "+m_qdDest.path());
+        }
+    }
+    else
+    {
+        errorReport.append("Impossible d'acceder à "+m_qdFilesDir.path());
+    }
+
+    if (errorReport.isEmpty() && m_qdFilesDir.exists() && m_qdDest.exists() && m_bCreateCopy)
+    {
+        addLog("Sauvegarde de "+m_qdDest.path());
+
         QString tmp;
         QString destCopy = m_qdDest.path();
 
@@ -80,6 +94,12 @@ void ThreadCopy::run()
                 errorReport.append("Impossible de créer la sauvegarde");
         }
 
+        if (m_bStop)
+        {
+            emit endSignal("Stoppé");
+            return;
+        }
+
         if (errorReport.isEmpty())
         {
             QString destCopyFile = "";
@@ -121,8 +141,10 @@ void ThreadCopy::run()
 
     if (errorReport.isEmpty())
     {
-        if (m_qdDest.exists())
+        if (m_qdFilesDir.exists() && m_qdDest.exists())
         {
+            addLog("Copie dans "+m_qdDest.path());
+
             for (int iFile=0;iFile<m_qslFiles.size();iFile++)
             {
                 error=false;
@@ -174,7 +196,10 @@ void ThreadCopy::run()
         }
         else
         {
-            errorReport.append("Impossible de trouver le repertoire : "+m_qdDest.path());
+            if (!m_qdFilesDir.exists())
+                errorReport.append("Impossible de trouver le repertoire : "+m_qdFilesDir.path()+"\n");
+            if (!m_qdDest.exists())
+                errorReport.append("Impossible de trouver le repertoire : "+m_qdDest.path());
         }
     }
     emit endSignal(errorReport);

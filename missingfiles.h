@@ -10,6 +10,7 @@
 
 #include "missingfileitem.h"
 #include "pushbutton.h"
+#include "define.h"
 
 class missingFiles : public QDialog
 {

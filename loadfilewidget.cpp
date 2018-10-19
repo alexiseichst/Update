@@ -1,7 +1,7 @@
 #include "loadfilewidget.h"
 
 LoadFileWidget::LoadFileWidget(QWidget *parent,QString filesDir) : QWidget(parent)
-{
+{     
     setAcceptDrops(false);
 
     m_qslFileList = nullptr;
@@ -47,7 +47,7 @@ void LoadFileWidget::OpenFolerPathClickedSlot()
     QDir dir(m_qdCurrentFolder);
     QString path="/";
 
-    if (dir.exists())
+    if (pingPc(dir) && dir.exists())
     {
         dir.cdUp();
         if (dir.exists())
@@ -75,7 +75,7 @@ void LoadFileWidget::NewDir(QString path)
 {
     QDir dir(path);
 
-    if (dir.exists())
+    if (pingPc(dir) && dir.exists())
     {
         m_qdCurrentFolder.setPath(path);
     }
@@ -96,8 +96,10 @@ void LoadFileWidget::NewFolder()
      m_qlValidFolderPath->setToolTip("Erreur");
      m_flFileList->emptyList();
 
-    if (m_qdCurrentFolder.path()==NULLDIR || !m_qdCurrentFolder.exists())
+    if (m_qdCurrentFolder.path()==NULLDIR || !pingPc(m_qdCurrentFolder) || !m_qdCurrentFolder.exists())
         return;
+
+    addLog("Nouveau repertoire de fichiers source : "+m_qdCurrentFolder.path());
 
     disconnect(m_qleFolderPath,SIGNAL(textChanged(QString)),this,SLOT(LineFolderPathReturnSlot()));
     m_qleFolderPath->setText(m_qdCurrentFolder.path());
@@ -154,7 +156,7 @@ QIcon LoadFileWidget::getIconApp(QString fileName)
         convertedName = new wchar_t[filePath.length() + 1];
         filePath.toWCharArray(convertedName);
         convertedName[filePath.length()] = '\0';
-        hInstance = ::GetModuleHandle(NULL);
+        hInstance = ::GetModuleHandle(LPCWSTR("Kernel32.dll"));
         Icon = ::ExtractIcon(hInstance, convertedName, 0);
 
         if (Icon)
@@ -175,9 +177,14 @@ QIcon LoadFileWidget::getIconApp(QString fileName)
     return returnedIcon;
 }
 
-void LoadFileWidget::setStringList(QStringList list)
+void LoadFileWidget::setStringList(QStringList list,bool allExe,bool allDll)
 {
-    m_flFileList->setSelected(list);
+    m_flFileList->setSelected(list,allExe,allDll);
+}
+
+void LoadFileWidget::sendSelectedFiles()
+{
+    m_flFileList->sendSelectedFiles();
 }
 
 void LoadFileWidget::sendSelectedFilesSlotSlot(QStringList list)

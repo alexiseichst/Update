@@ -12,6 +12,8 @@
 #include <QPushButton>
 #include <QDebug>
 
+#include "define.h"
+
 class CopyInfomation : public QDialog
 {
     Q_OBJECT

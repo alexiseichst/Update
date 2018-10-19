@@ -9,7 +9,7 @@ QT       += winextras
 QT       += concurrent
 LIBS     += -lgdi32
 
-VERSION  = 1.3.1
+VERSION  = 1.5.0
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,11 +31,15 @@ SOURCES += main.cpp\
     filecopyitem.cpp \
     checkbox.cpp \
     about.cpp \
-    settingsView.cpp \
     threadcopy.cpp \
     missingfiles.cpp \
     missingfileitem.cpp \
-    copyinfomation.cpp
+    copyinfomation.cpp \
+    preferences.cpp \
+    preferencetab.cpp \
+    listviewpreference.cpp \
+    logs.cpp \
+    pingpc.cpp
 
 HEADERS  += mainwindow.h \
     loadfilewidget.h \
@@ -51,11 +55,13 @@ HEADERS  += mainwindow.h \
     define.h \
     checkbox.h \
     about.h \
-    settingsView.h \
     threadcopy.h \
     missingfiles.h \
     missingfileitem.h \
-    copyinfomation.h
+    copyinfomation.h \
+    preferences.h \
+    preferencetab.h \
+    listviewpreference.h
 
 FORMS    += mainwindow.ui
 

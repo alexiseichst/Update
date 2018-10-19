@@ -2,6 +2,8 @@
 
 CopyFiles::CopyFiles(QWidget *parent) : QDialog(parent)
 {
+    addLog("Lancement d'une copie");
+
     QPalette pal = palette();
     QPixmap pixmap(":/Icon/play.png");
     QIcon icon(pixmap);
@@ -46,7 +48,7 @@ void CopyFiles::setStructList(QList<COPYSTRUCT*>* list)
     QListWidgetItem* item=NULL;
     m_qlCopyList = list;
 
-    if (m_qdFilestDir.exists() && m_qlCopyList && m_qlCopyList->size()>0)
+    if (pingPc(m_qdFilestDir) && m_qdFilestDir.exists() && m_qlCopyList && m_qlCopyList->size()>0)
     {
         for (int iCopyList=0;iCopyList<m_qlCopyList->size();iCopyList++)
         {
