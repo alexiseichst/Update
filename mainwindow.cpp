@@ -103,9 +103,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setGeometry(windowsRect);
     missingFile(false);
 
-    m_console = new Console(this);
-    m_console->hide();
-
     addLog("Fin du chargement");
 }
 
@@ -115,50 +112,6 @@ MainWindow::~MainWindow()
     delete m_qlCopyList;
     delete ui;
     addLog("Fermeture de l'application");
-}
-
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    switch (event->key())
-    {
-    case Qt::Key_P:
-        m_Key_P=true;
-        break;
-    case Qt::Key_Control:
-        m_Key_Control=true;
-        break;
-    case Qt::Key_A:
-        m_Key_A=true;
-        break;
-    default:
-        break;
-    }
-
-    if (m_Key_P && m_Key_Control && m_Key_A)
-    {
-        m_Key_P=false;
-        m_Key_Control=false;
-        m_Key_A=false;
-        m_console->show();
-    }
-}
-
-void MainWindow::keyReleaseEvent(QKeyEvent *event)
-{
-    switch (event->key())
-    {
-    case Qt::Key_P:
-        m_Key_P=false;
-        break;
-    case Qt::Key_Control:
-        m_Key_Control=false;
-        break;
-    case Qt::Key_A:
-        m_Key_A=false;
-        break;
-    default:
-        break;
-    }
 }
 
 void MainWindow::saveConf()

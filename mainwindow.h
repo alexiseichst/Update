@@ -60,8 +60,6 @@ private:
     void missingFile(bool openWindow=false);
     bool preferences(QDir dir);
     void saveConf();
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
 
 private slots:
     void destinationListChange(QList<DESTSELECT> list);
