@@ -131,53 +131,6 @@ void FileCopyItem::startCopy()
     m_tcThreadCopy->start();
 }
 
-void FileCopyItem::deleteDll()
-{
-    bool deleteAll=true;
-    QString destFile = "";
-    QList<QProcess*> processList;
-
-    for (int iFile=0;iFile<m_qslFiles.size();iFile++)
-    {
-        destFile =  m_qdDest.path()+"/"+m_qslFiles.at(iFile);
-        if (destFile.mid(destFile.size()-3) == "exe")
-        {
-            processList.append(new QProcess(this));
-            processList.last()->start(destFile);
-            thread()->msleep(100);
-        }
-    }
-
-    thread()->msleep(1000);
-    for (int iFile=0;iFile<processList.size();iFile++)
-    {
-        if (processList.at(iFile)->state()!=QProcess::Running)
-        {
-            deleteAll=false;
-        }
-    }
-    thread()->msleep(1000);
-
-    if (deleteAll)
-    {
-        for (int iFile=0;iFile<m_qslFiles.size();iFile++)
-        {
-            destFile =  m_qdDest.path()+"/"+m_qslFiles.at(iFile);
-            if (destFile.mid(destFile.size()-3) == "dll")
-            {
-                QFile::remove(destFile);
-            }
-        }
-    }
-
-    for (int iFile=0;iFile<processList.size();iFile++)
-    {
-        processList.at(iFile)->kill();
-    }
-
-    processList.clear();
-}
-
 void FileCopyItem::reset()
 {
     m_qpbProgressBar->setValue(0);

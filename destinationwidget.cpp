@@ -36,7 +36,3 @@ void DestinationWidget::selectedChange()
     emit selectedListSignal(signalList);
 }
 
-void DestinationWidget::setCopyOk(int index,bool state)
-{
-    m_dlDestinationList->setCopyOk(index,state);
-}

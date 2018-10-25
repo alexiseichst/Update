@@ -13,9 +13,6 @@ DestinationItem::DestinationItem(QWidget *parent,QDir dir,bool createCopy) : QWi
 
     m_qvblTextTopLayout = new QHBoxLayout(m_qvblTextLayout->widget());
 
-    m_pbValid = new PushButton(this,"");
-    m_qvblTextTopLayout->addWidget(m_pbValid,0,Qt::AlignLeft);
-
     m_qvblTextTopLayout->setAlignment(Qt::AlignLeft);
     m_qvblTextLayout->addLayout(m_qvblTextTopLayout);
     m_qvblMainLayout->addLayout(m_qvblTextLayout);
@@ -77,27 +74,4 @@ void DestinationItem::EditClicked()
 void DestinationItem::DelClicked()
 {
     emit DelClickedSignal(this->objectName());
-}
-
-void DestinationItem::setCopyOk(bool state)
-{
-    if (state)
-    {
-        if (pingPc(m_qdDir) && m_qdDir.exists())
-        {
-            m_pbValid->setIconCustom(":/Icon/success.png");
-            m_pbValid->setToolTip("Pret pour la copie");
-        }
-        else
-        {
-            m_pbValid->setIconCustom(":/Icon/error.png");
-            m_pbValid->setToolTip("Dossier introuvable");
-        }
-    }
-    else
-    {
-        m_pbValid->setIconCustom(":/Icon/error.png");
-        m_pbValid->setToolTip("Des exécutables sont ouverts");
-    }
-
 }

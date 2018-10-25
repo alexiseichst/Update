@@ -30,7 +30,6 @@ private:
     QLabel* m_qlName;
     QLabel* m_qlPath;
     bool m_bCreateCopy;
-    PushButton* m_pbValid;
     PushButton* m_pbEdit;
     PushButton* m_pbDel;
     QDir m_qdDir;

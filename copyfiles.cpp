@@ -34,10 +34,17 @@ CopyFiles::CopyFiles(QWidget *parent) : QDialog(parent)
 
     m_pbStopButton = new PushButton(this,":/Icon/stop.png",true);
     m_pbStopButton->setToolTip("Stop");
-    m_pbStopButton->setMinimumSize(25,25);
+    m_pbStopButton->setMaximumSize(25,25);
     m_pbStopButton->setIconSize(QSize(25,25));
-    m_qvblMainLayout->addWidget(m_pbStopButton);
+    m_qvblMainLayout->addWidget(m_pbStopButton,0,Qt::AlignCenter);
     connect(m_pbStopButton,SIGNAL(clicked(bool)),this,SLOT(stopRepeatCopySlot()));
+
+    m_pbInfoButton = new PushButton(this,":/Icon/info.png",true);
+    m_pbInfoButton->setToolTip("Details");
+    m_pbInfoButton->setMaximumSize(25,25);
+    m_pbInfoButton->setIconSize(QSize(25,25));
+    m_qvblMainLayout->addWidget(m_pbStopButton,0,Qt::AlignRight);
+    connect(m_pbInfoButton,SIGNAL(clicked(bool)),this,SLOT(stopRepeatCopySlot()));
 
     m_qtCopyThread = new QThread(this);
 
@@ -149,4 +156,9 @@ void CopyFiles::stopRepeatCopySlot()
         m_bSuccess=false;
     }
     m_bRepeat=!m_bRepeat;
+}
+
+void CopyFiles::infoCopySlot()
+{
+
 }

@@ -20,9 +20,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_cpCurrentCopyStruct = nullptr;
     m_cfCopyFiles = nullptr;
-    m_Key_P=false;
-    m_Key_Control=false;
-    m_Key_A=false;
 
     m_qlCopyList = new QList<COPYSTRUCT*>;
     settings.load(&windowsRect,m_qlCopyList,&fileFolder);
@@ -81,10 +78,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_qhblCenterLayout->addWidget(m_pbWarningButton);
     m_qtWarningTimer = new QTimer(m_pbWarningButton);
     connect(m_qtWarningTimer,SIGNAL(timeout()),SLOT(warningTimerSlot()));
-
-    m_qtCheckTimer = new QTimer(this);
-    connect(m_qtCheckTimer,SIGNAL(timeout()),SLOT(checkTimerSlot()));
-    //m_qtCheckTimer->start(1000);
 
     for (int iList=0;iList<m_qlCopyList->size();iList++)
     {
@@ -419,71 +412,4 @@ void MainWindow::warningTimerSlot()
         m_pbWarningButton->setIconCustom(":/Icon/warningRed.png");
     }
     iconRed=!iconRed;
-}
-
-void MainWindow::checkTimerSlot()
-{
-    bool valid = true;
-    QString fileName="";
-    QFile file;
-    QProcess process;
-    QByteArray list;
-    QString stringList="";
-
-    process.setReadChannel(QProcess::StandardOutput);
-    process.setReadChannelMode(QProcess::MergedChannels);
-    process.start("wmic.exe /OUTPUT:STDOUT PROCESS get ExecutablePath");
-
-    process.waitForStarted(1000);
-    process.waitForFinished(1000);
-
-    list = process.readAll();
-    stringList = QString::fromStdString(list.toStdString());
-    if (stringList.isEmpty())
-    {
-        addLog("Impossible de trouver les applications executées");
-        m_qtCheckTimer->stop();
-        return;
-    }
-
-    for (int iStr=0;iStr<stringList.size();iStr++)
-    {
-        if (stringList.at(iStr)==92)
-        {
-            //stringList.replace()
-        }
-    }
-
-    for (int iStruct=0;iStruct<m_qlCopyList->size();iStruct++)
-    {
-        valid=true;
-        if (!pingPc(m_qlCopyList->at(iStruct)->Destdir) && !m_qlCopyList->at(iStruct)->Destdir.exists())
-        {
-            valid=false;
-        }
-        else
-        {
-            for (int iFileDest=0;iFileDest<m_qlCopyList->at(iStruct)->FileList.size();iFileDest++)
-            {
-                fileName = m_qlCopyList->at(iStruct)->FileList.at(iFileDest);
-                if (fileName.at(fileName.size()-3)=='e' &&
-                    fileName.at(fileName.size()-2)=='x' &&
-                    fileName.at(fileName.size()-1)=='e')
-                {
-                    file.setFileName(m_qlCopyList->at(iStruct)->Destdir.path()+"/"+fileName);
-                    if (file.exists())
-                    {
-                        valid=false;
-                        break;
-                    }
-                    else
-                    {
-                        if (file.isOpen())
-                            file.close();
-                    }
-                }
-            }
-        }
-        m_lfwDestinationWidget->setCopyOk(iStruct,valid);
-    }
 }

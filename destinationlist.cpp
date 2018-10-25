@@ -128,8 +128,3 @@ void DestinationList::selectOne()
     if (m_qlDir.size()>0)
         item(m_qlDir.size()-1)->setSelected(true);
 }
-
-void DestinationList::setCopyOk(int index,bool state)
-{
-    m_qlDestItems->at(index)->setCopyOk(state);
-}

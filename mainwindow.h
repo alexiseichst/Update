@@ -48,12 +48,7 @@ private:
     PushButton* m_pbPreferenceButton;
     PushButton* m_pbWarningButton;
     QTimer* m_qtWarningTimer;
-    QTimer* m_qtCheckTimer;
     QList<PREFSTRUCT*> *m_qlPrefList;
-
-    bool m_Key_P;
-    bool m_Key_Control;
-    bool m_Key_A;
 
     void updateSelectedFiles();
     void validPlay();
@@ -70,7 +65,6 @@ private slots:
     void aboutSlot();
     void warningSlot();
     void warningTimerSlot();
-    void checkTimerSlot();
 };
 
 #endif // MAINWINDOW_H

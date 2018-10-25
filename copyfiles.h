@@ -26,6 +26,7 @@ private:
     QList<COPYSTRUCT*>* m_qlCopyList;
     QDir m_qdFilestDir;
     PushButton* m_pbStopButton;
+    PushButton* m_pbInfoButton;
     QListWidget *m_qlwFilesCopyList;
     QList<FileCopyItem*>* m_qlWidgetItem;
     QThread* m_qtCopyThread;
@@ -38,6 +39,7 @@ private:
 public slots:
     void startCopySlot(bool first,bool continueCopy);
     void stopRepeatCopySlot();
+    void infoCopySlot();
 };
 
 #endif // COPYFILES_H

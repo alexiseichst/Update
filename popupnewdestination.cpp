@@ -67,7 +67,7 @@ PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,QDir lastDir,b
     mqdbButtons->button(QDialogButtonBox::Ok)->setEnabled(false);
     connect(mqdbButtons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(DialogBoxButtonSlot(QAbstractButton*)));
 
-    connect(this, SIGNAL(finished(int)), this, SLOT(ExitSlot()));
+
 
     if (dir.path()!=NULLDIR)
     {
@@ -143,7 +143,11 @@ void PopUpNewDestination::NewFolder(bool setText)
         return;
 
     if (setText)
+    {
+        disconnect(m_qleFolderPath,SIGNAL(textChanged(QString)),this,SLOT(LineFolderPathChangeSlot()));
         m_qleFolderPath->setText(m_qdCurrentFolder.path());
+        connect(m_qleFolderPath,SIGNAL(textChanged(QString)),this,SLOT(LineFolderPathChangeSlot()));
+    }
 
     m_qlName->setText(m_qdCurrentFolder.dirName());
     m_qlValidFolderPath->setIconCustom(":/Icon/success.png");

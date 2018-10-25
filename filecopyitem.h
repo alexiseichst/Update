@@ -49,8 +49,6 @@ private:
     bool m_repeatClicked;
     bool m_repeatOk;
 
-    void deleteDll();
-
 private slots:
     void repeatSlot();
     void infoSlot();
