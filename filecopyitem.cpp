@@ -122,6 +122,7 @@ void FileCopyItem::startCopy()
         m_tcThreadCopy->setInfos(m_qdDest,m_qdFilesDir,m_qslFiles,m_bCreateCopy);
         connect(m_tcThreadCopy,SIGNAL(progressBarValueSignal(int)),m_qpbProgressBar,SLOT(setValue(int)));
         connect(m_tcThreadCopy,SIGNAL(endSignal(QString)),this,SLOT(endSlot(QString)));
+        connect(m_tcThreadCopy,SIGNAL(newText(QString)),this,SLOT(newTextSlot(QString)));
     }
     else
     {
@@ -192,4 +193,9 @@ void FileCopyItem::infoSlot()
 {
     CopyInfomation information(this,m_qsCopyResult);
     information.exec();
+}
+
+void FileCopyItem::newTextSlot(QString txt)
+{
+    emit newText(txt);
 }

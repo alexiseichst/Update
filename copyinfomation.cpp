@@ -9,7 +9,7 @@ CopyInfomation::CopyInfomation(QWidget *parent,QString result) : QDialog(parent)
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setModal(true);
-    setMaximumSize(450,450);
+    resize(450,450);
     setMinimumSize(450,450);
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);

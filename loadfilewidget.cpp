@@ -90,7 +90,7 @@ void LoadFileWidget::NewFolder()
 {
      QStringList tmpList;
      QList<QIcon> iconList;
-     bool firstDll=true;
+     QFileInfoList infoList;
 
      m_qlValidFolderPath->setIconCustom(":/Icon/error.png");
      m_qlValidFolderPath->setToolTip("Erreur");
@@ -106,6 +106,7 @@ void LoadFileWidget::NewFolder()
     connect(m_qleFolderPath,SIGNAL(textChanged(QString)),this,SLOT(LineFolderPathReturnSlot()));
 
     tmpList = QStringList(m_qdCurrentFolder.entryList(QStringList() << "*.exe" << "*.dll",QDir::Files));
+    infoList = m_qdCurrentFolder.entryInfoList();
 
     if (m_qslFileList)
         delete m_qslFileList;
@@ -116,22 +117,33 @@ void LoadFileWidget::NewFolder()
 
     for(int iList=0;iList<tmpList.size();iList++)
     {
-        QString fileName = tmpList.at(iList);
-        if(fileName.mid(fileName.size()-3,3)=="exe")
+        for(int iInfoList=0;iInfoList<infoList.size();iInfoList++)
         {
-            m_qslFileList->insert(0,fileName);
-            iconList.insert(0,getIconApp(fileName));
-        }
-        else
-        {
-            if (firstDll)
+            if (tmpList.at(iList)==infoList.at(iInfoList).fileName())
             {
-                m_qslFileList->append("Toutes les dll");
-                iconList.append(QIcon(":/Icon/star.png"));
-                firstDll=false;
+                QString name = tmpList.at(iList);
+                if (name.at(name.size()-3)=='e' &&
+                    name.at(name.size()-2)=='x' &&
+                    name.at(name.size()-1)=='e')
+                {
+                    QFileIconProvider iconProv;
+                    iconList.insert(0,iconProv.icon(infoList.at(iInfoList)));
+                    infoList.removeAt(iInfoList);
+                    m_qslFileList->insert(0,name);
+                    break;
+                }
+
+                if (name.at(name.size()-3)=='d' &&
+                    name.at(name.size()-2)=='l' &&
+                    name.at(name.size()-1)=='l')
+                {
+                    QFileIconProvider iconProv;
+                    iconList.append(iconProv.icon(infoList.at(iInfoList)));
+                    infoList.removeAt(iInfoList);
+                    m_qslFileList->append(name);
+                    break;
+                }
             }
-            m_qslFileList->append(fileName);
-            iconList.append(getIconApp(fileName));
         }
     }
 
@@ -139,42 +151,6 @@ void LoadFileWidget::NewFolder()
     m_qlValidFolderPath->setIconCustom(":/Icon/success.png");
     m_qlValidFolderPath->setToolTip("Valide");
 
-}
-
-QIcon LoadFileWidget::getIconApp(QString fileName)
-{
-    QString filePath;
-    QPixmap pixmap;
-    HICON Icon;
-    HINSTANCE hInstance;
-    wchar_t *convertedName=nullptr;
-    QIcon returnedIcon;
-
-    if(fileName.mid(fileName.size()-3,3)=="exe")
-    {
-        filePath = m_qdCurrentFolder.path()+"/"+fileName;
-        convertedName = new wchar_t[filePath.length() + 1];
-        filePath.toWCharArray(convertedName);
-        convertedName[filePath.length()] = '\0';
-        hInstance = ::GetModuleHandle(LPCWSTR("Kernel32.dll"));
-        Icon = ::ExtractIcon(hInstance, convertedName, 0);
-
-        if (Icon)
-            pixmap = QtWin::fromHICON(Icon);
-
-        if (pixmap.isNull())
-            returnedIcon = QIcon(":/Icon/exe.png");
-        else
-            returnedIcon = QIcon(pixmap);
-
-    }
-    else
-    {
-        returnedIcon = QIcon(":/Icon/dll.png");
-    }
-
-    delete convertedName;
-    return returnedIcon;
 }
 
 void LoadFileWidget::setStringList(QStringList list,bool allExe,bool allDll)

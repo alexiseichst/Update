@@ -53,9 +53,11 @@ private slots:
     void repeatSlot();
     void infoSlot();
     void endSlot(QString errorReport);
+    void newTextSlot(QString txt);
 
 signals:
     void copyFinished(bool first, bool continueCopy);
+    void newText(QString txt);
 };
 
 #endif // FILECOPYITEM_H

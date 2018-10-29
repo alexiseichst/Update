@@ -112,15 +112,19 @@ void ThreadCopy::run()
                 file.setFileName(sourceFile);
                 if (!file.copy(destCopyFile))
                 {
+
                     errorReport.append("Source: "+sourceFile);
                     errorReport.append("\n");
                     errorReport.append("Dest: "+destCopyFile);
                     errorReport.append("\n");
                     errorReport.append(file.errorString());
                     errorReport.append("\n\n");
+
+                    emit newText("Source: "+sourceFile+"\n"+"Dest: "+destCopyFile+"\n"+file.errorString()+"\n");
                 }
                 else
                 {
+                    emit newText("Source: "+sourceFile+"\n"+"Dest: "+destCopyFile+"\nSucess\n");
                     cptFiles++;
                     emit progressBarValueSignal(((float)cptFiles*100.0)/(float)(m_qslFiles.size()+tmpCopyList.size()));
                 }
@@ -181,9 +185,12 @@ void ThreadCopy::run()
                     errorReport.append("\n");
                     errorReport.append(file.errorString());
                     errorReport.append("\n\n");
+
+                    emit newText("Source: "+sourceFile+"\n"+"Dest: "+destFile+"\n"+file.errorString()+"\n");
                 }
                 else
                 {
+                    emit newText("Source: "+sourceFile+"\n"+"Dest: "+destFile+"\nSucess\n");
                     cptFiles++;
                     emit progressBarValueSignal(((float)cptFiles*100.0)/(float)(m_qslFiles.size()+tmpCopyList.size()));
                 }

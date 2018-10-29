@@ -1,6 +1,6 @@
 #include "copyfiles.h"
 
-CopyFiles::CopyFiles(QWidget *parent) : QDialog(parent)
+CopyFiles::CopyFiles(QWidget *parent,bool info) : QDialog(parent)
 {
     addLog("Lancement d'une copie");
 
@@ -32,22 +32,40 @@ CopyFiles::CopyFiles(QWidget *parent) : QDialog(parent)
     m_qlwFilesCopyList = new QListWidget(this);
     m_qvblMainLayout->addWidget(m_qlwFilesCopyList);
 
+    m_qteDetail=new QTextEdit(this);
+    m_qvblMainLayout->addWidget(m_qteDetail);
+    m_qteDetail->setStyleSheet("QTextEdit {color: lime; background-color: black}");
+    m_qteDetail->hide();
+    m_bInfos=false;
+
+    m_qhblButtonLayout = new QHBoxLayout();
+    m_qvblMainLayout->addLayout(m_qhblButtonLayout);
+
+    m_pbDebugButton = new PushButton(this,"",true);
+    m_pbDebugButton->setToolTip("Details");
+    m_pbDebugButton->setMaximumSize(20,20);
+    m_pbDebugButton->setIconSize(QSize(20,20));
+    m_pbDebugButton->setEnabled(false);
+    m_qhblButtonLayout->addWidget(m_pbDebugButton,0,Qt::AlignLeft);
+
     m_pbStopButton = new PushButton(this,":/Icon/stop.png",true);
     m_pbStopButton->setToolTip("Stop");
     m_pbStopButton->setMaximumSize(25,25);
     m_pbStopButton->setIconSize(QSize(25,25));
-    m_qvblMainLayout->addWidget(m_pbStopButton,0,Qt::AlignCenter);
+    m_qhblButtonLayout->addWidget(m_pbStopButton,0,Qt::AlignCenter);
     connect(m_pbStopButton,SIGNAL(clicked(bool)),this,SLOT(stopRepeatCopySlot()));
 
     m_pbInfoButton = new PushButton(this,":/Icon/info.png",true);
     m_pbInfoButton->setToolTip("Details");
-    m_pbInfoButton->setMaximumSize(25,25);
-    m_pbInfoButton->setIconSize(QSize(25,25));
-    m_qvblMainLayout->addWidget(m_pbStopButton,0,Qt::AlignRight);
-    connect(m_pbInfoButton,SIGNAL(clicked(bool)),this,SLOT(stopRepeatCopySlot()));
+    m_pbInfoButton->setMaximumSize(20,20);
+    m_pbInfoButton->setIconSize(QSize(20,20));
+    m_qhblButtonLayout->addWidget(m_pbInfoButton,0,Qt::AlignRight);
+    connect(m_pbInfoButton,SIGNAL(clicked(bool)),this,SLOT(infoCopySlot()));
 
     m_qtCopyThread = new QThread(this);
 
+    m_bInfos=!info;
+    infoCopySlot();
 }
 
 void CopyFiles::setStructList(QList<COPYSTRUCT*>* list)
@@ -66,6 +84,7 @@ void CopyFiles::setStructList(QList<COPYSTRUCT*>* list)
 
             m_qlwFilesCopyList->setItemWidget(item,m_qlWidgetItem->last());
             connect(m_qlWidgetItem->last(),SIGNAL(copyFinished(bool,bool)),SLOT(startCopySlot(bool,bool)));
+            connect(m_qlWidgetItem->last(),SIGNAL(newText(QString)),SLOT(newTextSlot(QString)));
 
             item->setSizeHint(QSize(m_qlwFilesCopyList->item(m_qlWidgetItem->size()-1)->sizeHint().width(), 50));
             item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
@@ -160,5 +179,29 @@ void CopyFiles::stopRepeatCopySlot()
 
 void CopyFiles::infoCopySlot()
 {
+    if (m_bInfos)
+    {
+        setMaximumSize(300,400);
+        setMinimumSize(300,400);
+        resize(300,400);
+        m_qteDetail->hide();
+    }
+    else
+    {
+        setMaximumSize(400,500);
+        setMinimumSize(400,500);
+        resize(400,500);
+        m_qteDetail->show();
+    }
+    m_bInfos=!m_bInfos;
+}
 
+void CopyFiles::newTextSlot(QString txt)
+{
+    m_qteDetail->append(txt);
+}
+
+bool CopyFiles::getInfo()
+{
+    return m_bInfos;
 }

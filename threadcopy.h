@@ -29,6 +29,7 @@ private:
 signals:
     void progressBarValueSignal(int value);
     void endSignal(QString errorReport);
+    void newText(QString txt);
 
 public slots:
 

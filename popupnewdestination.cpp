@@ -13,7 +13,7 @@ PopUpNewDestination::PopUpNewDestination(QWidget *parent,QDir dir,QDir lastDir,b
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setModal(true);
-    setMaximumSize(300,250);
+    resize(300,250);
     setMinimumSize(300,250);
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);

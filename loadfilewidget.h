@@ -9,6 +9,9 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QtWin>
+#include <QFileInfo>
+#include <QFileInfoList>
+#include <QFileIconProvider>
 
 #include "pushbutton.h"
 #include "filelist.h"
@@ -37,7 +40,6 @@ private:
 
     void NewFolder();
     void NewDir(QString path);
-    QIcon getIconApp(QString path);
 
 private slots:
     void OpenFolerPathClickedSlot();

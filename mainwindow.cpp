@@ -262,17 +262,19 @@ void MainWindow::playSlot()
 {
     Settings settings;
     QRect rectArg = geometry();
+    static bool info=false;
     settings.save(&rectArg,m_qlCopyList,m_lfwLoadFileWidget->getDir().path());
 
     if (m_cfCopyFiles)
         delete m_cfCopyFiles;
-    m_cfCopyFiles = new CopyFiles(this);
+    m_cfCopyFiles = new CopyFiles(this,info);
 
-    m_cfCopyFiles->show();
     m_cfCopyFiles->setFilesDir(m_lfwLoadFileWidget->getDir());
     m_cfCopyFiles->setStructList(m_qlCopyList);
     QCoreApplication::processEvents();
     m_cfCopyFiles->startCopySlot(true,true);
+    m_cfCopyFiles->exec();
+    info = m_cfCopyFiles->getInfo();
 
 }
 

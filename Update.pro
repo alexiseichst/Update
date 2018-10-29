@@ -9,7 +9,7 @@ QT       += winextras
 QT       += concurrent
 LIBS     += -lgdi32
 
-VERSION  = 1.5.0
+VERSION  = 1.5.1
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

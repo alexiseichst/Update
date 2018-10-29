@@ -9,7 +9,7 @@ missingFiles::missingFiles(QWidget *parent,QList<QStringList> missingList,QList<
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setModal(true);
-    setMaximumSize(300,400);
+    resize(300,400);
     setMinimumSize(300,400);
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);
