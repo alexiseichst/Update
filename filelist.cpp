@@ -12,7 +12,7 @@ void FileList::setList(QStringList list,QList<QIcon> iconList)
     m_iAllDll=-1;
     for(int iList=0;iList<list.size();iList++)
     {
-        if (list.at(iList)=="Toutes les dll")
+        if (list.at(iList)==ALLDLLNAME)
             m_iAllDll=iList;
 
         m_qlCheckBoxList->append(new CheckBox(this,list.at(iList)));

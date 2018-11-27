@@ -147,6 +147,18 @@ void LoadFileWidget::NewFolder()
         }
     }
 
+    for(int iFileList=0;iFileList<m_qslFileList->size();iFileList++)
+    {
+        QString name = m_qslFileList->at(iFileList);
+        if (name.at(name.size()-3)=='d' &&
+            name.at(name.size()-2)=='l' &&
+            name.at(name.size()-1)=='l')
+        {
+            m_qslFileList->insert(iFileList,ALLDLLNAME);
+            iconList.insert(iFileList,QIcon(":/Icon/star.png"));
+            break;
+        }
+    }
     m_flFileList->setList(*m_qslFileList,iconList);
     m_qlValidFolderPath->setIconCustom(":/Icon/success.png");
     m_qlValidFolderPath->setToolTip("Valide");

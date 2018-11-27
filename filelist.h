@@ -15,6 +15,8 @@
 #include "define.h"
 #include "checkbox.h"
 
+#define ALLDLLNAME "Toutes les dll"
+
 class FileList : public QListWidget
 {
     Q_OBJECT

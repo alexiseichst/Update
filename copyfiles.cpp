@@ -35,6 +35,7 @@ CopyFiles::CopyFiles(QWidget *parent,bool info) : QDialog(parent)
     m_qteDetail=new QTextEdit(this);
     m_qvblMainLayout->addWidget(m_qteDetail);
     m_qteDetail->setStyleSheet("QTextEdit {color: lime; background-color: black}");
+    m_qteDetail->setReadOnly(true);
     m_qteDetail->hide();
     m_bInfos=false;
 
@@ -167,6 +168,7 @@ void CopyFiles::stopRepeatCopySlot()
         startCopySlot(true,true);
         m_pbStopButton->setIconCustom(":/Icon/stop.png");
         m_pbStopButton->setToolTip("Stop");
+        m_qteDetail->clear();
     }
     else
     {
