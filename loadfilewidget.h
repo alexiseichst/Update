@@ -26,8 +26,8 @@
 #include <QtWin>
 #include <QFileInfo>
 #include <QFileInfoList>
-#include <QFileIconProvider>
 
+#include "fileiconprovider.h"
 #include "pushbutton.h"
 #include "filelist.h"
 #include "define.h"

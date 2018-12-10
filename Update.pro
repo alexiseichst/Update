@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     preferencetab.cpp \
     listviewpreference.cpp \
     logs.cpp \
-    pingpc.cpp
+    pingpc.cpp \
+    fileiconprovider.cpp
 
 HEADERS  += mainwindow.h \
     loadfilewidget.h \
@@ -61,7 +62,8 @@ HEADERS  += mainwindow.h \
     copyinfomation.h \
     preferences.h \
     preferencetab.h \
-    listviewpreference.h
+    listviewpreference.h \
+    fileiconprovider.h
 
 FORMS    += mainwindow.ui
 

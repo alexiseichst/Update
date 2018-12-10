@@ -126,7 +126,7 @@ void LoadFileWidget::NewFolder()
                     name.at(name.size()-2)=='x' &&
                     name.at(name.size()-1)=='e')
                 {
-                    QFileIconProvider iconProv;
+                    FileIconProvider iconProv;
                     iconList.insert(0,iconProv.icon(infoList.at(iInfoList)));
                     infoList.removeAt(iInfoList);
                     m_qslFileList->insert(0,name);
@@ -137,7 +137,7 @@ void LoadFileWidget::NewFolder()
                     name.at(name.size()-2)=='l' &&
                     name.at(name.size()-1)=='l')
                 {
-                    QFileIconProvider iconProv;
+                    FileIconProvider iconProv;
                     iconList.append(iconProv.icon(infoList.at(iInfoList)));
                     infoList.removeAt(iInfoList);
                     m_qslFileList->append(name);
