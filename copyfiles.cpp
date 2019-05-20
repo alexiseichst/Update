@@ -156,9 +156,10 @@ void CopyFiles::stopRepeatCopySlot()
 {
     if (!m_bRepeat  && !m_bSuccess)
     {
-        m_qlWidgetItem->at(m_iCopyIndex)->stopCopy();
+        m_qlWidgetItem->at(m_iCopyIndex < m_qlWidgetItem->size()-1 ? m_iCopyIndex : m_qlWidgetItem->size()-1)->stopCopy();
         m_pbStopButton->setIconCustom(":/Icon/repeat.png");
         m_pbStopButton->setToolTip("Recommencer");
+        m_bRepeat = true;
     }
     else if (m_bRepeat && !m_bSuccess)
     {
@@ -169,14 +170,15 @@ void CopyFiles::stopRepeatCopySlot()
         m_pbStopButton->setIconCustom(":/Icon/stop.png");
         m_pbStopButton->setToolTip("Stop");
         m_qteDetail->clear();
+        m_bRepeat = false;
     }
     else
     {
         m_pbStopButton->setIconCustom(":/Icon/repeat.png");
         m_pbStopButton->setToolTip("Terminé");
         m_bSuccess=false;
+        m_bRepeat = true;
     }
-    m_bRepeat=!m_bRepeat;
 }
 
 void CopyFiles::infoCopySlot()

@@ -258,6 +258,7 @@ void MainWindow::newSelectedFilesSlot(QStringList list)
     validPlay();
 }
 
+
 void MainWindow::playSlot()
 {
     Settings settings;
